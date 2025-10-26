@@ -1,0 +1,38 @@
+﻿{% extends "_base.html" %}
+{% block title %}Cart — VFXKart{% endblock %}
+{% block content %}
+<h2>Your Cart</h2>
+{% if not items %}
+  <p>No items yet.</p>
+  <p><a class="btn" href="{{ url_for('shop') }}">Go to Shop</a></p>
+{% else %}
+<form method="post" action="{{ url_for('cart_update') }}">
+<table class="table">
+  <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
+  <tbody>
+    {% for it in items %}
+      <tr>
+        <td>
+          {% if it.thumb %}<img class="mini" src="{{ it.thumb }}">{% endif %}
+          <a href="{{ url_for('product_detail', product_id=it.id) }}">{{ it.title }}</a>
+        </td>
+        <td>₹{{ '%.2f'|format(it.price) }}</td>
+        <td><input class="qty" type="number" min="0" name="qty_{{ it.id }}" value="{{ it.qty }}"></td>
+        <td>₹{{ '%.2f'|format(it.subtotal) }}</td>
+        <td>
+          <form method="post" action="{{ url_for('cart_remove') }}">
+            <input type="hidden" name="product_id" value="{{ it.id }}">
+            <button class="link danger">Remove</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<p class="right"><button class="btn ghost">Update cart</button></p>
+</form>
+
+<h3 class="right total">Total: ₹{{ '%.2f'|format(total) }}</h3>
+<p class="right"><a class="btn" href="{{ url_for('checkout') }}">Checkout</a></p>
+{% endif %}
+{% endblock %}

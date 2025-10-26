@@ -1,0 +1,69 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Sellers</title>
+  <style>
+    body{margin:0;background:#0b0710;color:#e6eef8;font-family:system-ui;padding:22px}
+    .container{max-width:1200px;margin:0 auto}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border:1px solid rgba(255,255,255,0.04);text-align:left}
+    th{background:#0e1220;color:#cfeaff}
+    a.button{display:inline-block;padding:6px 10px;border-radius:8px;text-decoration:none;background:rgba(255,255,255,0.04);color:#e6eef8}
+    form.inline{display:inline}
+    .actions{display:flex;gap:8px}
+    .meta{color:#9aa4b2;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h1>Seller Submissions</h1>
+        <div class="meta">Total: {{ sellers|length }}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <a class="button" href="{{ url_for('admin_sellers_export') }}">Export CSV</a>
+        <a class="button" href="{{ url_for('admin_logout') }}">Logout</a>
+      </div>
+    </div>
+
+    {% if sellers %}
+      <table>
+        <thead>
+          <tr><th>#</th><th>Name</th><th>Brand</th><th>Email</th><th>Phone</th><th>Note</th><th>Approved</th><th>Created</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          {% for s in sellers %}
+            <tr>
+              <td>{{ s.id }}</td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.brand }}</td>
+              <td><a href="mailto:{{ s.email }}">{{ s.email }}</a></td>
+              <td>{{ s.phone }}</td>
+              <td style="max-width:300px;white-space:pre-wrap">{{ s.note }}</td>
+              <td>{{ 'Yes' if s.approved else 'No' }}</td>
+              <td>{{ s.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+              <td>
+                <div class="actions">
+                  {% if not s.approved %}
+                    <form class="inline" method="post" action="{{ url_for('admin_sellers_approve', seller_id=s.id) }}">
+                      <button type="submit" class="button">Approve</button>
+                    </form>
+                  {% endif %}
+                  <form class="inline" method="post" action="{{ url_for('admin_sellers_delete', seller_id=s.id) }}" onsubmit="return confirm('Delete this seller?');">
+                    <button type="submit" class="button">Delete</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No submissions yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

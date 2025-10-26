@@ -1,0 +1,16 @@
+﻿{% extends "_base.html" %}
+{% block title %}Checkout — VFXKart{% endblock %}
+{% block content %}
+<h2>Checkout</h2>
+<form method="post" class="form">
+  <label>Name <input name="name" required></label>
+  <label>Email <input type="email" name="email" required></label>
+  <label>Phone <input name="phone"></label>
+  <label>Address <textarea name="address" required></textarea></label>
+  <div class="grid2">
+    <label>City <input name="city" required></label>
+    <label>Pincode <input name="pincode" required></label>
+  </div>
+  <button class="btn">Place order</button>
+</form>
+{% endblock %}

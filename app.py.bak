@@ -1,0 +1,610 @@
+﻿# -*- coding: utf-8 -*-
+"""
+VFXKart - full Flask app:
+- SQLite via SQLAlchemy
+- Seller registration/login, seller dashboard
+- Product creation with multi-image upload (Pillow used to create thumbnails)
+- Public shop with search, seller filter, price range, sort, pagination
+- Public product detail page with gallery
+- Admin login + seller export
+- Serves uploaded files from /uploads/<filename>
+"""
+import os
+import re
+import json
+import csv
+import uuid
+from math import ceil
+from datetime import datetime
+from io import BytesIO, StringIO
+
+from PIL import Image
+
+from flask import (
+    Flask, render_template, request, redirect, url_for, flash,
+    session, Response, abort, send_from_directory
+)
+from werkzeug.utils import secure_filename, safe_join
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+
+# ---------------- Paths / config ----------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
+DATA_DIR = os.path.join(BASE_DIR, "data")
+JSON_SELLERS = os.path.join(DATA_DIR, "sellers.json")
+DB_PATH = os.path.join(BASE_DIR, "app.db")
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+THUMB_SUFFIX = "thumb"  # thumbnails named like "<uuid>_thumb.jpg"
+
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+if not os.path.exists(JSON_SELLERS):
+    with open(JSON_SELLERS, "w", encoding="utf-8") as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+# Flask app
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
+app.secret_key = os.environ.get("VFXKART_SECRET", "dev-secret-key")
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Upload settings
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+MAX_CONTENT_BYTES = 3 * 1024 * 1024  # 3 MB
+
+db = SQLAlchemy(app)
+
+# ---------------- Models ----------------
+class Seller(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200))
+    brand = db.Column(db.String(200))
+    email = db.Column(db.String(200))
+    phone = db.Column(db.String(100))
+    note = db.Column(db.Text)
+    approved = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SellerUser(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(200), unique=True, nullable=False)
+    password_hash = db.Column(db.String(300), nullable=False)
+    seller_profile_id = db.Column(db.Integer, db.ForeignKey('seller.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def check_password(self, raw):
+        return check_password_hash(self.password_hash, raw)
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    seller_id = db.Column(db.Integer, db.ForeignKey('seller_user.id'), nullable=False)
+    title = db.Column(db.String(250), nullable=False)
+    price = db.Column(db.String(80), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class ProductImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    filename = db.Column(db.String(300), nullable=False)   # original stored filename
+    thumb = db.Column(db.String(300), nullable=True)       # thumbnail filename
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# ---------------- Admin auth ----------------
+ADMIN_USER = os.environ.get("VFXKART_ADMIN_USER", "admin")
+ADMIN_PASS = os.environ.get("VFXKART_ADMIN_PASS", "changeme")
+ADMIN_PASS_HASH = os.environ.get("VFXKART_ADMIN_PASS_HASH", None)
+
+def check_admin_password(password: str) -> bool:
+    if ADMIN_PASS_HASH:
+        return check_password_hash(ADMIN_PASS_HASH, password)
+    return password == ADMIN_PASS
+
+def admin_login_required(fn):
+    from functools import wraps
+    @wraps(fn)
+    def wrapper(*a, **kw):
+        if not session.get("admin_logged_in"):
+            return redirect(url_for("admin_login", next=request.path))
+        return fn(*a, **kw)
+    return wrapper
+
+def seller_login_required(fn):
+    from functools import wraps
+    @wraps(fn)
+    def wrapper(*a, **kw):
+        if not session.get("seller_id"):
+            return redirect(url_for("seller_login", next=request.path))
+        return fn(*a, **kw)
+    return wrapper
+
+# ---------------- DB init + import ----------------
+def import_json_to_db():
+    db.create_all()
+    if Seller.query.count() == 0:
+        try:
+            with open(JSON_SELLERS, "r", encoding="utf-8") as f:
+                items = json.load(f)
+        except Exception:
+            items = []
+        for it in items:
+            s = Seller(
+                name = it.get("name",""),
+                brand = it.get("brand",""),
+                email = it.get("email",""),
+                phone = it.get("phone",""),
+                note = it.get("note",""),
+                approved = it.get("approved", False)
+            )
+            db.session.add(s)
+        db.session.commit()
+
+with app.app_context():
+    import_json_to_db()
+
+# ---------------- Upload helpers ----------------
+def allowed_file(filename: str) -> bool:
+    if not filename:
+        return False
+    ext = filename.rsplit(".", 1)[-1].lower()
+    return ext in ALLOWED_EXTENSIONS
+
+def make_unique_filename(original: str) -> str:
+    ext = original.rsplit(".", 1)[-1].lower() if "." in original else "jpg"
+    name = uuid.uuid4().hex
+    return f"{name}.{ext}"
+
+def create_thumbnail(in_bytes: bytes, dest_path: str, size=(560, 360)):
+    """
+    Create a thumbnail JPEG from bytes and save to dest_path.
+    """
+    try:
+        img = Image.open(BytesIO(in_bytes))
+        img = img.convert("RGB")
+        img.thumbnail(size, Image.LANCZOS)
+        img.save(dest_path, format="JPEG", quality=82)
+        return True
+    except Exception:
+        return False
+
+# small helper: parse numeric price from string
+def _parse_price_to_number(price_str):
+    """
+    Try to extract a numeric value from a price string.
+    Accepts strings like "₹1,999", "1999", "19.99", "$1,234.56" -> returns float or None.
+    """
+    if not price_str:
+        return None
+    m = re.search(r"([0-9]+(?:[.,][0-9]+)?)", str(price_str))
+    if not m:
+        return None
+    num = m.group(1).replace(",", "")
+    try:
+        return float(num)
+    except Exception:
+        try:
+            return float(num.replace(",", ""))
+        except Exception:
+            return None
+
+# Route to serve uploaded files
+@app.route("/uploads/<path:filename>")
+def uploaded_file(filename):
+    path = safe_join(UPLOAD_FOLDER, filename)
+    if not path or not os.path.exists(path):
+        abort(404)
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
+# ---------------- Frontend & product routes ----------------
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/shop")
+def shop():
+    """
+    Shop listing with search, seller filter, price range, sort and pagination.
+    Query params:
+      - q: text search
+      - seller: seller username (exact match)
+      - min_price: numeric minimum (e.g. 1000)
+      - max_price: numeric maximum (e.g. 5000)
+      - sort: newest | price_asc | price_desc
+      - page: 1-based page
+      - per_page: items per page (default 12)
+    """
+    q = request.args.get("q", "").strip()
+    seller_filter = request.args.get("seller", "").strip()
+    min_price_raw = request.args.get("min_price", "").strip()
+    max_price_raw = request.args.get("max_price", "").strip()
+    sort = request.args.get("sort", "newest")
+    try:
+        page = max(int(request.args.get("page", 1)), 1)
+    except Exception:
+        page = 1
+    try:
+        per_page = max(int(request.args.get("per_page", 12)), 1)
+    except Exception:
+        per_page = 12
+
+    # parse numeric price filters
+    min_price = None
+    max_price = None
+    try:
+        if min_price_raw != "":
+            min_price = float(min_price_raw)
+    except Exception:
+        min_price = None
+    try:
+        if max_price_raw != "":
+            max_price = float(max_price_raw)
+    except Exception:
+        max_price = None
+
+    # load all products (for a small app; for scale, push filters into DB)
+    products = Product.query.order_by(Product.created_at.desc()).all()
+    candidate = []
+
+    for p in products:
+        # seller name
+        seller = SellerUser.query.get(p.seller_id)
+        seller_name = seller.username if seller else "Unknown"
+
+        # first image (thumb)
+        img = ProductImage.query.filter_by(product_id=p.id).first()
+        img_url = url_for('uploaded_file', filename=img.thumb) if img and img.thumb else None
+
+        # numeric price (try parse)
+        numeric_price = _parse_price_to_number(p.price)
+
+        # text search
+        if q:
+            combined = f"{p.title or ''} {p.description or ''} {seller_name}"
+            if q.lower() not in combined.lower():
+                continue
+
+        # seller filter (exact username)
+        if seller_filter:
+            if seller_name.lower() != seller_filter.lower():
+                continue
+
+        # price range filter
+        if min_price is not None or max_price is not None:
+            if numeric_price is None:
+                # product has non-parsable price — skip when numeric filters present
+                continue
+            if min_price is not None and numeric_price < min_price:
+                continue
+            if max_price is not None and numeric_price > max_price:
+                continue
+
+        candidate.append({
+            "id": p.id,
+            "title": p.title,
+            "price": p.price,
+            "price_num": numeric_price,
+            "description": p.description,
+            "seller": seller_name,
+            "created_at": p.created_at,
+            "image": img_url
+        })
+
+    # sorting
+    if sort == "price_asc":
+        candidate.sort(key=lambda x: (x["price_num"] is None, x["price_num"] if x["price_num"] is not None else float("inf")))
+    elif sort == "price_desc":
+        candidate.sort(key=lambda x: (x["price_num"] is None, -(x["price_num"] if x["price_num"] is not None else 0)))
+    else:  # newest (default)
+        candidate.sort(key=lambda x: x["created_at"], reverse=True)
+
+    # pagination
+    total = len(candidate)
+    total_pages = max(1, ceil(total / per_page))
+    if page > total_pages:
+        page = total_pages
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_items = candidate[start:end]
+
+    # gather seller list (unique usernames) for the seller filter dropdown
+    sellers = [u.username for u in SellerUser.query.order_by(SellerUser.username.asc()).all()]
+
+    # keep query args for forms/links
+    query_args = {
+        "q": q,
+        "seller": seller_filter,
+        "min_price": min_price_raw,
+        "max_price": max_price_raw,
+        "sort": sort,
+        "page": page,
+        "per_page": per_page,
+    }
+
+    return render_template(
+        "shop.html",
+        products=page_items,
+        total=total,
+        page=page,
+        total_pages=total_pages,
+        per_page=per_page,
+        sellers=sellers,
+        query_args=query_args
+    )
+
+@app.route("/product/<int:product_id>")
+def product_detail(product_id):
+    p = Product.query.get_or_404(product_id)
+    seller = SellerUser.query.get(p.seller_id)
+    seller_name = seller.username if seller else "Unknown"
+    images = ProductImage.query.filter_by(product_id=p.id).order_by(ProductImage.created_at.asc()).all()
+    imgs = []
+    for im in images:
+        full = url_for('uploaded_file', filename=im.filename) if im.filename else None
+        thumb = url_for('uploaded_file', filename=im.thumb) if im.thumb else full
+        imgs.append({"full": full, "thumb": thumb})
+    return render_template("product_detail.html", product=p, seller_name=seller_name, images=imgs)
+
+# Seller auth and flows
+@app.route("/seller/register", methods=["GET","POST"])
+def seller_register():
+    if request.method == "POST":
+        username = (request.form.get("username") or "").strip()
+        email = (request.form.get("email") or "").strip()
+        password = request.form.get("password") or ""
+        name = (request.form.get("name") or "").strip()
+        brand = (request.form.get("brand") or "").strip()
+
+        if not (username and email and password):
+            flash("Please fill username, email and password.", "error")
+            return redirect(url_for("seller_register"))
+        if SellerUser.query.filter((SellerUser.username==username)|(SellerUser.email==email)).first():
+            flash("Username or email already taken.", "error")
+            return redirect(url_for("seller_register"))
+
+        seller_profile = Seller(name=name, brand=brand, email=email, approved=False)
+        db.session.add(seller_profile)
+        db.session.flush()
+
+        user = SellerUser(
+            username=username,
+            email=email,
+            password_hash=generate_password_hash(password),
+            seller_profile_id=seller_profile.id
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash("Account created. Please log in.", "success")
+        return redirect(url_for("seller_login"))
+
+    return render_template("seller_register.html")
+
+@app.route("/seller/login", methods=["GET","POST"])
+def seller_login():
+    if request.method == "POST":
+        user_or_email = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        u = SellerUser.query.filter((SellerUser.username==user_or_email)|(SellerUser.email==user_or_email)).first()
+        if u and u.check_password(password):
+            session["seller_id"] = u.id
+            flash("Logged in.", "success")
+            return redirect(url_for("seller_dashboard"))
+        flash("Invalid credentials.", "error")
+        return redirect(url_for("seller_login"))
+    return render_template("seller_login.html")
+
+@app.route("/seller/logout")
+def seller_logout():
+    session.pop("seller_id", None)
+    flash("Logged out.", "success")
+    return redirect(url_for("index"))
+
+@app.route("/seller/dashboard", methods=["GET","POST"])
+@seller_login_required
+def seller_dashboard():
+    user = SellerUser.query.get(session.get("seller_id"))
+    if not user:
+        flash("Session invalid.", "error")
+        return redirect(url_for("seller_login"))
+
+    if request.method == "POST":
+        title = (request.form.get("title") or "").strip()
+        price = request.form.get("price") or ""
+        desc = (request.form.get("description") or "").strip()
+        if not title:
+            flash("Product title required.", "error")
+            return redirect(url_for("seller_dashboard"))
+        p = Product(seller_id=user.id, title=title, price=price, description=desc)
+        db.session.add(p)
+        db.session.commit()
+
+        # multiple files support: name="images"
+        files = request.files.getlist("images")
+        added_image = False
+        for file in files:
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                if allowed_file(filename):
+                    data = file.read()
+                    if len(data) <= MAX_CONTENT_BYTES:
+                        unique_name = make_unique_filename(filename)
+                        dest = os.path.join(UPLOAD_FOLDER, unique_name)
+                        with open(dest, "wb") as out:
+                            out.write(data)
+                        # create thumbnail
+                        thumb_name = f"{uuid.uuid4().hex}_{THUMB_SUFFIX}.jpg"
+                        thumb_path = os.path.join(UPLOAD_FOLDER, thumb_name)
+                        ok = create_thumbnail(data, thumb_path, size=(560,360))
+                        if not ok:
+                            thumb_name = None
+                        img = ProductImage(product_id=p.id, filename=unique_name, thumb=thumb_name)
+                        db.session.add(img)
+                        added_image = True
+                    else:
+                        flash("One of the images exceeded 3MB and was skipped.", "error")
+                else:
+                    flash("Unsupported image type detected and skipped.", "error")
+        if added_image:
+            db.session.commit()
+            flash("Product and images uploaded.", "success")
+        else:
+            # if none added, product still created
+            flash("Product added.", "success")
+        return redirect(url_for("seller_dashboard"))
+
+    products = Product.query.filter_by(seller_id=user.id).order_by(Product.created_at.desc()).all()
+    products_with_images = []
+    for p in products:
+        img = ProductImage.query.filter_by(product_id=p.id).first()
+        img_url = url_for('uploaded_file', filename=img.thumb) if img and img.thumb else None
+        products_with_images.append((p, img_url))
+    return render_template("seller_dashboard.html", user=user, products=products_with_images)
+
+@app.route("/product/<int:product_id>/edit", methods=["GET","POST"])
+@seller_login_required
+def product_edit(product_id):
+    user = SellerUser.query.get(session.get("seller_id"))
+    p = Product.query.get_or_404(product_id)
+    if p.seller_id != user.id:
+        abort(403)
+    if request.method == "POST":
+        title = (request.form.get("title") or "").strip()
+        price = request.form.get("price") or ""
+        desc = (request.form.get("description") or "").strip()
+        if not title:
+            flash("Title required.", "error")
+            return redirect(url_for("product_edit", product_id=product_id))
+        p.title = title
+        p.price = price
+        p.description = desc
+        db.session.add(p)
+        # handle new images
+        files = request.files.getlist("images")
+        added = False
+        for file in files:
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                if allowed_file(filename):
+                    data = file.read()
+                    if len(data) <= MAX_CONTENT_BYTES:
+                        unique_name = make_unique_filename(filename)
+                        dest = os.path.join(UPLOAD_FOLDER, unique_name)
+                        with open(dest, "wb") as out:
+                            out.write(data)
+                        thumb_name = f"{uuid.uuid4().hex}_{THUMB_SUFFIX}.jpg"
+                        thumb_path = os.path.join(UPLOAD_FOLDER, thumb_name)
+                        ok = create_thumbnail(data, thumb_path, size=(560,360))
+                        if not ok:
+                            thumb_name = None
+                        img = ProductImage(product_id=p.id, filename=unique_name, thumb=thumb_name)
+                        db.session.add(img)
+                        added = True
+                    else:
+                        flash("One of the images exceeded 3MB and was skipped.", "error")
+                else:
+                    flash("Unsupported image type detected and skipped.", "error")
+        db.session.commit()
+        if added:
+            flash("Product updated and images added.", "success")
+        else:
+            flash("Product updated.", "success")
+        return redirect(url_for("product_edit", product_id=product_id))
+    # GET -> show edit page
+    images = ProductImage.query.filter_by(product_id=p.id).order_by(ProductImage.created_at.asc()).all()
+    return render_template("product_edit.html", product=p, images=images)
+
+@app.route("/product/<int:product_id>/image/delete/<int:image_id>", methods=["POST"])
+@seller_login_required
+def product_image_delete(product_id, image_id):
+    user = SellerUser.query.get(session.get("seller_id"))
+    p = Product.query.get_or_404(product_id)
+    if p.seller_id != user.id:
+        abort(403)
+    img = ProductImage.query.get_or_404(image_id)
+    # delete files from disk
+    try:
+        if img.filename:
+            fp = os.path.join(UPLOAD_FOLDER, img.filename)
+            if os.path.exists(fp):
+                os.remove(fp)
+        if img.thumb:
+            fp = os.path.join(UPLOAD_FOLDER, img.thumb)
+            if os.path.exists(fp):
+                os.remove(fp)
+    except Exception:
+        pass
+    db.session.delete(img)
+    db.session.commit()
+    flash("Image deleted.", "success")
+    return redirect(url_for("product_edit", product_id=product_id))
+
+@app.route("/seller/product/delete/<int:product_id>", methods=["POST"])
+@seller_login_required
+def seller_product_delete(product_id):
+    user = SellerUser.query.get(session.get("seller_id"))
+    p = Product.query.get_or_404(product_id)
+    if p.seller_id != user.id:
+        abort(403)
+    imgs = ProductImage.query.filter_by(product_id=p.id).all()
+    for img in imgs:
+        try:
+            if img.filename:
+                fpath = os.path.join(UPLOAD_FOLDER, img.filename)
+                if os.path.exists(fpath):
+                    os.remove(fpath)
+            if img.thumb:
+                fpath = os.path.join(UPLOAD_FOLDER, img.thumb)
+                if os.path.exists(fpath):
+                    os.remove(fpath)
+        except Exception:
+            pass
+        db.session.delete(img)
+    db.session.delete(p)
+    db.session.commit()
+    flash("Product deleted.", "success")
+    return redirect(url_for("seller_dashboard"))
+
+# ---------------- Admin routes ----------------
+@app.route("/admin/login", methods=["GET","POST"])
+def admin_login():
+    if request.method == "POST":
+        username = request.form.get("username","")
+        password = request.form.get("password","")
+        if username == ADMIN_USER and check_admin_password(password):
+            session["admin_logged_in"] = True
+            flash("Welcome, admin.", "success")
+            return redirect(url_for("admin_sellers"))
+        flash("Invalid credentials.", "error")
+        return redirect(url_for("admin_login"))
+    return render_template("admin_login.html")
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.pop("admin_logged_in", None)
+    flash("Logged out.", "success")
+    return redirect(url_for("index"))
+
+@app.route("/admin/sellers")
+@admin_login_required
+def admin_sellers():
+    sellers = Seller.query.order_by(Seller.created_at.desc()).all()
+    return render_template("admin_sellers.html", sellers=sellers)
+
+@app.route("/admin/sellers/export.csv")
+@admin_login_required
+def admin_sellers_export():
+    sellers = Seller.query.order_by(Seller.created_at.desc()).all()
+    si = StringIO()
+    writer = csv.writer(si)
+    writer.writerow(["id","name","brand","email","phone","note","approved","created_at"])
+    for s in sellers:
+        writer.writerow([s.id, s.name, s.brand, s.email, s.phone, s.note, s.approved, s.created_at.isoformat()])
+    output = si.getvalue().encode("utf-8")
+    return Response(output, mimetype="text/csv", headers={
+        "Content-Disposition": "attachment; filename=sellers_export.csv"
+    })
+
+# ---------------- Run ----------------
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=5000, debug=True)

@@ -1,0 +1,13 @@
+﻿{% extends "_base.html" %}
+{% block title %}Order Success — VFXKart{% endblock %}
+{% block content %}
+<h2>🎉 Order placed!</h2>
+<p>Order #{{ order.id }} — {{ order.created_at.strftime("%Y-%m-%d %H:%M") }}</p>
+<ul>
+  {% for it in items %}
+    <li>{{ it.qty }} × {{ it.title }} — ₹{{ '%.2f'|format(it.price_each * it.qty) }}</li>
+  {% endfor %}
+</ul>
+<p><strong>Total:</strong> ₹{{ '%.2f'|format(order.total_amount) }}</p>
+<p><a class="btn" href="{{ url_for('shop') }}">Continue shopping</a></p>
+{% endblock %}

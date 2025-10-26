@@ -1,0 +1,22 @@
+﻿<!doctype html><html><head><meta charset="utf-8"><title>Dashboard</title></head>
+<body style="background:#0b0710;color:#e6eef8;font-family:system-ui;padding:20px">
+  <a href="/">← Site</a> | <a href="/seller/logout">Logout</a>
+  <h1>Welcome {{ user.username }}</h1>
+  <h3>Your products</h3>
+  <form method="post" style="margin-bottom:12px">
+    <input name="title" placeholder="Title" required>
+    <input name="price" placeholder="Price (e.g. ₹1999)">
+    <textarea name="description" placeholder="Short description"></textarea>
+    <button type="submit">Add product</button>
+  </form>
+
+  {% if products %}
+    <ul>
+      {% for p in products %}
+        <li><strong>{{ p.title }}</strong> — {{ p.price or '' }} — <form method="post" action="{{ url_for('seller_product_delete', product_id=p.id) }}" style="display:inline"><button type="submit">Delete</button></form></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No products yet.</p>
+  {% endif %}
+</body></html>

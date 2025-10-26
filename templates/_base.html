@@ -1,0 +1,50 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}VFXKart{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+  <script defer src="{{ url_for('static', filename='js/site.js') }}"></script>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="{{ url_for('index') }}">VFXKart</a>
+  <nav>
+    <a href="{{ url_for('shop') }}">Shop</a>
+    <a href="{{ url_for('seller_root') }}">Sell</a>
+    {% if current_user.is_authenticated %}
+      <span class="muted">Hi, {{ current_user.username }}</span>
+      <a href="{{ url_for('auth_logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('auth_login') }}">Log in</a>
+      <a href="{{ url_for('auth_register') }}">Sign up</a>
+    {% endif %}
+    <a href="{{ url_for('cart_view') }}" class="btn small">🛒 Cart
+      {% if cart_count %}<span class="badge">{{ cart_count }}</span>{% endif %}
+    </a>
+  </nav>
+</header>
+
+<main class="container">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% if msgs %}
+      <div class="flash-wrap">
+      {% for cat, msg in msgs %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<a href="{{ url_for('cart_view') }}" class="floating-cart" aria-label="Open cart">
+  🛒 {{ cart_count or 0 }}
+</a>
+
+<footer class="container footer">© 2025 VFXKart</footer>
+</body>
+</html>
