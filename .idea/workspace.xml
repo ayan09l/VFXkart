@@ -4,7 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ba957a59-2a10-4c0b-ac54-b144df9e88fe" name="Changes" comment="" />
+    <list default="true" id="ba957a59-2a10-4c0b-ac54-b144df9e88fe" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/seed_demo.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/_auth_shared.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/auth_register.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.db" beforeDir="false" afterPath="$PROJECT_DIR$/app.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup_20251023_213640/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/backup_20251023_213640/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/site.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/site.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/_base.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/auth_login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/auth_login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seller_login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/seller_login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seller_register.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/shop.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/shop.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -16,6 +33,9 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
@@ -31,6 +51,8 @@
     &quot;Notification.DisplayName-DoNotAsk-Failed to remove BOM&quot;: &quot;Failed to remove BOM&quot;,
     &quot;Notification.DoNotAsk-Failed to remove BOM&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;File.Encoding&quot;
   }

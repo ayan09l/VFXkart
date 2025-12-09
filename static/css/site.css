@@ -1,48 +1,191 @@
-﻿:root{
-  --bg:#0b0d12; --panel:#121622; --muted:#9aa3ad; --text:#e6e9ef;
-  --pri:#5bc0ff; --pri2:#7c5cff; --ok:#47d16a; --err:#ff6b6b;
-  --line:#1e2537;
+﻿/* site.css - simple, modern base styles for VFXKart */
+:root{
+  --bg:#0f1724;          /* dark background */
+  --card:#0b1220;
+  --muted:#9aa5b1;
+  --accent:#06b6d4;      /* cyan-ish accent */
+  --accent-2:#7c3aed;    /* purple */
+  --white:#e6eef6;
+  --glass: rgba(255,255,255,0.03);
+  --success:#16a34a;
+  --danger:#ef4444;
+  --radius:12px;
+  --container:1100px;
 }
-*{box-sizing:border-box} html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}
-a{color:#9dd1ff;text-decoration:none} a:hover{text-decoration:underline}
-.container{max-width:1100px;margin:24px auto;padding:0 16px}
-.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(11,13,18,.85);backdrop-filter:blur(6px);z-index:50}
-.nav .brand{font-weight:800;letter-spacing:.5px}
-.nav nav a{margin-left:16px}
-.btn{display:inline-block;background:linear-gradient(135deg,var(--pri),var(--pri2));color:#fff;padding:10px 16px;border-radius:10px;border:0}
-.btn:hover{opacity:.95} .btn.small{padding:6px 10px;border-radius:8px}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
-.badge{display:inline-block;min-width:18px;padding:2px 6px;font-size:12px;border-radius:999px;background:rgba(80,200,255,.22);border:1px solid rgba(80,200,255,.4);margin-left:6px}
-.muted{color:var(--muted)} .right{text-align:right}
-.flash-wrap{margin:10px 0} .flash{padding:10px;border-radius:8px;margin:8px 0;background:#182035;border:1px solid var(--line)}
-.flash.success{border-color:#1f5f3a;background:#0f1f16;color:#b7ffd1}
-.flash.error{border-color:#5f1f1f;background:#1f0f0f;color:#ffc0c0}
-.footer{opacity:.6;margin:40px auto 60px}
 
-.hero{padding:60px 0}
-.hero h1{font-size:42px;margin:0 0 10px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
-.card img{width:100%;height:160px;object-fit:cover;border-radius:8px;background:#000}
-.img.ph{display:flex;align-items:center;justify-content:center;background:#0b0f18;border-radius:8px;height:160px;color:#3a4561}
-.img.ph.big{height:320px}
-.price{font-weight:700} .price.big{font-size:24px}
-.link{color:#b7c9ff}
-.table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
-.table th,.table td{padding:10px;border-bottom:1px solid var(--line)}
-.mini{width:48px;height:48px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle}
-.qty{width:70px}
-.total{margin:10px 0 20px}
-.pagination{margin:20px 0} .page{display:inline-block;padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin-right:6px}
-.page.active{background:#1a2340}
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
-.filters input,.filters select{background:#0f1426;border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px}
-.form label{display:block;margin:10px 0} .form input,.form textarea{width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);background:#0f1426;color:var(--text)}
-.inline{display:inline-flex;align-items:center;gap:6px}
-.product{display:grid;grid-template-columns:1.2fr .8fr;gap:20px}
-.gallery .thumbs{display:flex;gap:8px;margin-top:8px}
-.gallery .thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer}
-.floating-cart{position:fixed;right:22px;bottom:22px;padding:12px 16px;border-radius:999px;font-weight:700;background:linear-gradient(135deg,#4cc9f0,#4361ee);color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:999;transition:transform .12s}
-.floating-cart:hover{transform:translateY(-2px)}
-@media (max-width:900px){.product{grid-template-columns:1fr}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: linear-gradient(180deg, #071226 0%, #0b1220 100%);
+  color:var(--white);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.45;
+}
+
+.container{
+  width:95%;
+  max-width:var(--container);
+  margin:0 auto;
+}
+
+/* NAV */
+.nav{
+  width:100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  position:sticky;
+  top:0;
+  z-index:40;
+  backdrop-filter: blur(4px);
+}
+.nav-inner{
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  padding:0.7rem 0;
+}
+.brand{
+  font-weight:700;
+  font-size:1.25rem;
+  color:var(--white);
+  text-decoration:none;
+  letter-spacing:0.4px;
+}
+.nav-toggle{
+  display:none;
+  background:none;
+  border:0;
+  color:var(--white);
+  font-size:1.25rem;
+  cursor:pointer;
+}
+
+/* links */
+.nav-links{
+  margin-left:auto;
+  display:flex;
+  gap:0.75rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.nav-link{
+  color:var(--white);
+  text-decoration:none;
+  padding:0.45rem 0.6rem;
+  border-radius:8px;
+  font-weight:500;
+}
+.nav-link:hover{ background:var(--glass) }
+
+.muted{ color:var(--muted); font-size:0.95rem }
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:0.5rem;
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#041017;
+  padding:0.45rem 0.65rem;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:700;
+  box-shadow: 0 6px 22px rgba(12,18,25,0.35);
+}
+.btn.small{ padding:0.25rem 0.45rem; font-size:0.95rem }
+
+/* Badge */
+.badge{
+  display:inline-block;
+  background: rgba(255,255,255,0.12);
+  color:var(--white);
+  padding:0.08rem 0.45rem;
+  font-weight:700;
+  border-radius:999px;
+  margin-left:0.4rem;
+  font-size:0.85rem;
+}
+
+/* Main content */
+.main{ padding:1.25rem 0 3rem 0 }
+
+/* Flash messages */
+.flash-wrap{ margin-bottom:1rem; display:flex; flex-direction:column; gap:0.5rem }
+.flash{
+  padding:0.65rem 0.9rem;
+  border-radius:10px;
+  background: rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.03);
+  color:var(--white);
+  font-weight:600;
+}
+.flash.success{ border-left:4px solid var(--success) }
+.flash.error{ border-left:4px solid var(--danger) }
+.flash.info{ border-left:4px solid var(--accent) }
+
+/* Floating cart (corner) */
+.floating-cart{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  z-index:60;
+  text-decoration:none;
+  background: linear-gradient(90deg,var(--accent),var(--accent-2));
+  color:#041017;
+  padding:0.7rem 0.9rem;
+  border-radius:999px;
+  font-weight:800;
+  box-shadow: 0 8px 28px rgba(4,6,8,0.6);
+}
+.floating-cart .fc-count{
+  margin-left:0.45rem;
+  background: rgba(255,255,255,0.9);
+  border-radius:999px;
+  padding:0.08rem 0.45rem;
+  font-weight:700;
+  color:#041017;
+}
+
+/* Footer */
+.footer{
+  margin-top:3.5rem;
+  padding:1.25rem 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:var(--muted);
+  border-top:1px solid rgba(255,255,255,0.02);
+}
+
+/* Responsive */
+@media (max-width: 880px){
+  .nav-toggle{ display:block }
+  .nav-links{
+    position:fixed;
+    right:0; top:56px;
+    background: linear-gradient(180deg, rgba(6,10,14,0.96), rgba(6,10,14,0.98));
+    width:240px;
+    max-width:80%;
+    height:calc(100vh - 56px);
+    transform: translateX(110%);
+    transition: transform .24s ease;
+    flex-direction:column;
+    padding:1rem;
+    box-shadow: -8px 18px 40px rgba(2,6,12,0.6);
+    border-left:1px solid rgba(255,255,255,0.02);
+  }
+  .nav-links.open{ transform: translateX(0) }
+  .nav-link{ display:block; padding:0.7rem 0; }
+  .btn{ width:100% }
+}
+/* Password meter */
+.pw-meter{ background: rgba(255,255,255,0.04); border-radius:6px; }
+.pw-fill{ width:0%; height:100%; border-radius:6px; }
+
+/* Dropzone */
+.dropzone{ border:1px dashed rgba(255,255,255,0.06); padding:12px; border-radius:8px; display:flex; align-items:center; gap:10px; cursor:pointer }
+.dropzone.drop-over{ background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.12); }
+.drop-preview img{ max-height:56px; }

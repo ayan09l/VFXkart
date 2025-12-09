@@ -4,15 +4,34 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Login — VFXKart</title>
+
+  <!-- Tailwind for layout + palette (dev CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            accent1: '#06b6d4',
+            accent2: '#7c3aed',
+            vfxbg: '#071226',
+            vfxcard: '#0b1220'
+          }
+        }
+      }
+    }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
   <style>
-    /* background blobs */
+    :root{ --muted: #9aa5b1; }
+
+    /* background blobs (kept custom for the glow look) */
     .bg-blobs{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
     .blob{position:absolute;filter:blur(60px);opacity:0.55;mix-blend:screen;border-radius:9999px;
       animation: float 12s ease-in-out infinite}
-    .blob.a{width:380px;height:380px;background:var(--accent1);top:-80px;left:-60px}
-    .blob.b{width:420px;height:420px;background:var(--accent2);bottom:-120px;right:-60px;animation-delay:2s}
+    .blob.a{width:380px;height:380px;background:var(--tw-clr-accent1, #06b6d4);top:-80px;left:-60px}
+    .blob.b{width:420px;height:420px;background:var(--tw-clr-accent2, #7c3aed);bottom:-120px;right:-60px;animation-delay:2s}
     .blob.c{width:280px;height:280px;background:#7cf5ff33;top:40%;left:60%;animation-delay:4s}
 
     @keyframes float {
@@ -20,32 +39,19 @@
       50%{transform:translateY(-16px) translateX(8px)}
     }
 
-    .auth-wrap{max-width:420px;margin:60px auto}
-    .tabs{display:flex;gap:8px;margin-bottom:14px}
-    .tab{flex:1;text-align:center;padding:10px;border-radius:12px;
-      border:1px solid rgba(255,255,255,0.06);cursor:pointer;
-      user-select:none;transition:.25s}
-    .tab.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#071026;border:none;transform:translateY(-1px)}
-    .panel{transition:opacity .25s, transform .25s}
-    .panel.hide{opacity:0;transform:translateY(6px);height:0;overflow:hidden}
-
-    /* floating labels */
+    /* floating labels adapted to tailwind */
     .field{position:relative}
     .field input{width:100%;padding:14px 12px 12px;border-radius:10px;background:transparent;
-      border:1px solid rgba(255,255,255,0.08);color:inherit;outline:none;transition:.2s}
+      border:1px solid rgba(255,255,255,0.06);color:inherit;outline:none;transition:.18s}
     .field label{position:absolute;left:12px;top:12px;font-size:13px;color:var(--muted);
-      transition:.2s;pointer-events:none}
-    .field input:focus{border-color:rgba(255,255,255,0.25);box-shadow:0 0 0 6px rgba(255,255,255,0.035)}
+      transition:.18s;pointer-events:none}
+    .field input:focus{border-color:rgba(255,255,255,0.18);box-shadow:0 0 0 6px rgba(255,255,255,0.02)}
     .field input:not(:placeholder-shown) + label,
-    .field input:focus + label{top:-8px;left:10px;padding:0 6px;font-size:11px;background:#0c1420;border-radius:6px;color:#cfe7ff}
+    .field input:focus + label{top:-8px;left:10px;padding:0 6px;font-size:11px;background:transparent;border-radius:6px;color:#cfe7ff}
+    /* small tweak so label visibility is solid on dark bg */
+    .field input:not(:placeholder-shown) + label{background:transparent}
 
-    .actions{display:flex;gap:8px;align-items:center}
-    .btn.wide{width:100%}
-
-    /* button micro interaction */
-    .btn:active{transform:translateY(1px) scale(.995)}
-
-    /* shake errors a bit */
+    /* shake error */
     .flash.error{animation:shake .28s linear}
     @keyframes shake{
       0%,100%{transform:translateX(0)}
@@ -54,82 +60,102 @@
       60%{transform:translateX(-4px)}
       80%{transform:translateX(4px)}
     }
+
+    /* compact logo */
+    .logo{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,var(--tw-clr-accent1,#06b6d4),var(--tw-clr-accent2,#7c3aed));display:flex;align-items:center;justify-content:center;font-weight:800;color:#071026}
   </style>
 </head>
-<body>
-  <div class="bg-blobs">
+<body class="min-h-screen font-poppins bg-gradient-to-b from-vfxbg via-[#071526] to-vfxcard text-slate-100">
+
+  <div class="bg-blobs" aria-hidden="true">
     <div class="blob a"></div>
     <div class="blob b"></div>
     <div class="blob c"></div>
   </div>
 
-  <div class="container auth-wrap">
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+  <div class="max-w-xl mx-auto px-4 py-12">
+    <div class="bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] border border-white/5 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-center gap-4 mb-4">
         <div class="logo">VK</div>
         <div>
-          <div style="font-weight:700">VFXKart</div>
-          <div class="note">Welcome back</div>
+          <div class="text-lg font-semibold">VFXKart</div>
+          <div class="text-sm text-slate-400">Welcome back</div>
         </div>
       </div>
 
+      <!-- FLASH MESSAGES -->
       {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-          <div class="flash {{ category }}">{{ message }}</div>
-        {% endfor %}
+        {% if messages %}
+          <div class="mb-3 space-y-2" role="status" aria-live="polite">
+            {% for category, message in messages %}
+              <div class="rounded-md px-3 py-2 text-sm font-medium {% if category=='success' %}bg-green-500/10 border border-green-400/20 text-green-200{% elif category=='error' %}bg-red-500/8 border border-red-400/20 text-red-200 flash error{% else %}bg-white/3 border border-white/5 text-white{% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       {% endwith %}
 
-      <div class="tabs">
-        <div id="tab-pass" class="tab">Password</div>
-        <div id="tab-otp" class="tab">OTP</div>
+      <!-- tabs -->
+      <div class="flex gap-2 mb-4" role="tablist" aria-label="Login methods">
+        <button id="tab-pass" class="flex-1 rounded-lg px-3 py-2 text-sm font-semibold bg-white/4" role="tab" aria-selected="true">Password</button>
+        <button id="tab-otp"  class="flex-1 rounded-lg px-3 py-2 text-sm font-semibold bg-transparent border border-white/6" role="tab" aria-selected="false">OTP</button>
       </div>
 
       <!-- PASSWORD PANEL -->
-      <div id="panel-pass" class="panel">
-        <form method="post" action="{{ url_for('auth_login') }}" style="display:grid;gap:12px">
+      <div id="panel-pass" class="space-y-3" role="tabpanel" aria-hidden="false">
+        <form method="post" action="{{ url_for('auth_login') }}" class="grid gap-3" novalidate>
+          <!-- If you add Flask-WTF, insert {{ form.csrf_token }} here -->
           <div class="field">
-            <input name="username" placeholder=" " required>
+            <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email" autofocus>
             <label>Username or email</label>
           </div>
+
           <div class="field">
-            <input id="pw" name="password" type="password" placeholder=" " required>
+            <input id="pw" name="password" type="password" placeholder=" " required autocomplete="current-password" aria-label="Password">
             <label>Password</label>
           </div>
-          <label style="display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px">
-            <input type="checkbox" name="remember"> Remember me
+
+          <label class="flex items-center gap-2 text-sm text-slate-400">
+            <input type="checkbox" name="remember" class="w-4 h-4 rounded border-white/10 bg-white/2" aria-label="Remember me">
+            <span>Remember me</span>
           </label>
-          <button class="btn wide" type="submit">Log in</button>
-          <div class="actions" style="justify-content:space-between">
-            <a class="btn ghost" href="{{ url_for('auth_register') }}">Create account</a>
-            <a class="btn ghost" href="{{ url_for('auth_forgot') }}">Forgot?</a>
+
+          <button type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-accent1 to-accent2 text-black hover:brightness-95 active:scale-[.997]">Log in</button>
+
+          <div class="flex gap-2 items-center justify-between">
+            <a class="text-sm text-slate-300 underline-offset-2 hover:underline" href="{{ url_for('auth_register') }}">Create account</a>
+            <a class="text-sm text-slate-300 underline-offset-2 hover:underline" href="{{ url_for('auth_forgot') }}">Forgot?</a>
           </div>
         </form>
       </div>
 
       <!-- OTP PANEL -->
-      <div id="panel-otp" class="panel hide">
-        <form method="post" action="{{ url_for('auth_request_otp') }}" style="display:grid;gap:12px;margin-bottom:8px">
+      <div id="panel-otp" class="space-y-3 hidden" role="tabpanel" aria-hidden="true">
+        <form method="post" action="{{ url_for('auth_request_otp') }}" class="grid gap-3" novalidate>
           <div class="field">
-            <input name="username" placeholder=" " required>
+            <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email for OTP">
             <label>Username or email</label>
           </div>
-          <button class="btn wide" type="submit" id="sendBtn">Send code</button>
-          <div class="note">We’ll email a 6-digit code. (Dev: code prints in server console.)</div>
+          <button id="sendBtn" type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-accent1 to-accent2 text-black">Send code</button>
+          <p class="text-xs text-slate-400">We’ll email a 6-digit code. (Dev: code prints in server console.)</p>
         </form>
-        <form method="post" action="{{ url_for('auth_verify_otp') }}" style="display:grid;gap:12px">
+
+        <form method="post" action="{{ url_for('auth_verify_otp') }}" class="grid gap-3 mt-2" novalidate>
           <div class="field">
-            <input name="username" placeholder=" " required>
+            <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email for verify">
             <label>Username or email</label>
           </div>
           <div class="field">
-            <input name="otp" placeholder=" " maxlength="6" required>
+            <input name="otp" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder=" " required aria-label="6-digit code">
             <label>6-digit code</label>
           </div>
-          <button class="btn wide" type="submit">Verify & Log in</button>
+          <button type="submit" class="w-full py-3 rounded-xl font-bold bg-white/6 text-white hover:bg-white/8">Verify & Log in</button>
         </form>
       </div>
     </div>
-    <div class="footer">© 2025 VFXKart</div>
+
+    <div class="mt-6 text-center text-sm text-slate-400">© 2025 VFXKart</div>
   </div>
 
 <script>
@@ -138,38 +164,62 @@
   const tabOtp  = document.getElementById('tab-otp');
   const panelPass = document.getElementById('panel-pass');
   const panelOtp  = document.getElementById('panel-otp');
+  const sendBtn = document.getElementById('sendBtn');
 
   function setMode(mode){
     const otp = mode==='otp';
-    tabPass.classList.toggle('active', !otp);
-    tabOtp.classList.toggle('active', otp);
-    panelPass.classList.toggle('hide', otp);
-    panelOtp.classList.toggle('hide', !otp);
-    const url=new URL(window.location);
-    url.searchParams.set('mode', otp?'otp':'password');
-    history.replaceState({},'',url);
+    tabPass.classList.toggle('bg-white/4', !otp);
+    tabPass.classList.toggle('bg-transparent', otp);
+    tabOtp.classList.toggle('bg-white/4', otp);
+    tabOtp.classList.toggle('bg-transparent', !otp);
+
+    panelPass.classList.toggle('hidden', otp);
+    panelOtp.classList.toggle('hidden', !otp);
+
+    tabPass.setAttribute('aria-selected', !otp ? 'true' : 'false');
+    tabOtp.setAttribute('aria-selected', otp ? 'true' : 'false');
+
+    // update url param (no reload)
+    try {
+      const url = new URL(window.location);
+      url.searchParams.set('mode', otp ? 'otp' : 'password');
+      history.replaceState({}, '', url);
+    } catch(e){}
   }
 
   tabPass.addEventListener('click', ()=> setMode('password'));
-  tabOtp .addEventListener('click', ()=> setMode('otp'));
+  tabOtp.addEventListener('click', ()=> setMode('otp'));
 
   // initial mode from ?mode=otp
   const params = new URLSearchParams(window.location.search);
-  setMode(params.get('mode')==='otp' ? 'otp' : 'password');
+  setMode(params.get('mode') === 'otp' ? 'otp' : 'password');
 
-  // simple cooldown on send btn
-  const sendBtn = document.getElementById('sendBtn');
+  // cooldown UX on send button (prevents double-submits visually)
   if(sendBtn){
-    sendBtn.addEventListener('click', ()=>{
+    sendBtn.addEventListener('click', function(){
+      // start visual cooldown (server will still handle)
       setTimeout(()=>{
-        let t=30;
-        const iv=setInterval(()=>{
-          if(t<=0){sendBtn.disabled=false;sendBtn.textContent='Send code';clearInterval(iv)}
-          else {sendBtn.disabled=true;sendBtn.textContent='Resend ('+t+'s)'; t--}
-        },1000);
-      },100); // start after form posts, for UX
+        let t = 30;
+        sendBtn.disabled = true;
+        const iv = setInterval(()=>{
+          if(t<=0){ sendBtn.disabled=false; sendBtn.textContent='Send code'; clearInterval(iv); }
+          else { sendBtn.textContent = 'Resend (' + t + 's)'; t--; }
+        }, 1000);
+      }, 120);
     });
   }
+
+  // small accessibility: focus first input after toggling
+  const observer = new MutationObserver(() => {
+    if(!panelPass.classList.contains('hidden')){
+      const el = panelPass.querySelector('input[autofocus]') || panelPass.querySelector('input');
+      el && el.focus();
+    } else {
+      const el = panelOtp.querySelector('input');
+      el && el.focus();
+    }
+  });
+  observer.observe(document.body, { attributes: true, subtree: true });
 })();
 </script>
 </body>

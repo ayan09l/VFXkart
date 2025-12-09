@@ -71,6 +71,7 @@ db = SQLAlchemy(app)
 
 # ---------- Models ----------
 class Seller(db.Model):
+    __tablename__ = "seller"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     brand = db.Column(db.String(200))
@@ -81,6 +82,7 @@ class Seller(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class SellerUser(db.Model):
+    __tablename__ = "seller_user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
@@ -90,6 +92,7 @@ class SellerUser(db.Model):
     def check_password(self, raw): return check_password_hash(self.password_hash, raw)
 
 class User(db.Model, UserMixin):
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     email = db.Column(db.String(200), unique=True, nullable=False)
@@ -99,6 +102,7 @@ class User(db.Model, UserMixin):
     def check_password(self, raw): return check_password_hash(self.password_hash, raw)
 
 class Product(db.Model):
+    __tablename__ = "product"
     id = db.Column(db.Integer, primary_key=True)
     seller_id = db.Column(db.Integer, db.ForeignKey('seller_user.id'), nullable=False)
     title = db.Column(db.String(250), nullable=False)
@@ -107,6 +111,7 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ProductImage(db.Model):
+    __tablename__ = "product_image"
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     filename = db.Column(db.String(300), nullable=False)
@@ -114,6 +119,7 @@ class ProductImage(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Order(db.Model):
+    __tablename__ = "order"
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
@@ -127,6 +133,7 @@ class Order(db.Model):
     status = db.Column(db.String(40), default="paid")
 
 class OrderItem(db.Model):
+    __tablename__ = "order_item"
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
@@ -135,6 +142,7 @@ class OrderItem(db.Model):
     qty = db.Column(db.Integer, default=1)
 
 class LoginCode(db.Model):  # seller OTP
+    __tablename__ = "login_code"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('seller_user.id'), nullable=False)
     code = db.Column(db.String(6), nullable=False)
@@ -143,6 +151,7 @@ class LoginCode(db.Model):  # seller OTP
     used = db.Column(db.Boolean, default=False)
 
 class PublicLoginCode(db.Model):  # user OTP
+    __tablename__ = "public_login_code"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     code = db.Column(db.String(6), nullable=False)
@@ -279,7 +288,8 @@ def inject_cart_badge():
 # ---------- Static + uploads + favicon ----------
 @app.route("/uploads/<path:filename>")
 def uploaded_file(filename):
-    path = safe_join(UPLOAD_FOLDER, filename)
+    # safe_join returns a safe path when called with app.root_path etc; but we only need to ensure file exists
+    path = os.path.join(UPLOAD_FOLDER, filename)
     if not path or not os.path.exists(path): abort(404)
     return send_from_directory(UPLOAD_FOLDER, filename)
 
@@ -526,6 +536,26 @@ def auth_verify_otp():
     return redirect(next_url)
 
 # ---------- Seller auth (password + OTP) ----------
+@app.route("/seller/login", methods=["GET","POST"])
+def seller_login():
+    if request.method == "POST":
+        user_or_email = (request.form.get("username") or "").strip()
+        password = request.form.get("password") or ""
+        u = SellerUser.query.filter((SellerUser.username==user_or_email)|(SellerUser.email==user_or_email)).first()
+        if u and check_password_hash(u.password_hash, password):
+            session["seller_id"] = u.id
+            flash("Logged in.", "success")
+            return redirect(url_for("seller_dashboard"))
+        flash("Invalid credentials.", "error")
+        return redirect(url_for("seller_login"))
+    return render_template("seller_login.html")
+
+@app.route("/seller/logout")
+def seller_logout():
+    session.pop("seller_id", None)
+    flash("Logged out.", "success")
+    return redirect(url_for("index"))
+
 @app.route("/seller/register", methods=["GET","POST"])
 def seller_register():
     if request.method == "POST":
@@ -546,6 +576,23 @@ def seller_register():
         db.session.add(seller_profile)
         db.session.flush()
 
+        # handle optional logo upload
+        logo_file = request.files.get("brand_logo")
+        if logo_file and logo_file.filename:
+            filename = secure_filename(logo_file.filename)
+            if allowed_file(filename):
+                data = logo_file.read()
+                if len(data) <= MAX_CONTENT_BYTES:
+                    unique_name = make_unique_filename(filename)
+                    dest = os.path.join(UPLOAD_FOLDER, unique_name)
+                    with open(dest, "wb") as out: out.write(data)
+                    # store reference in seller.note as quick solution
+                    seller_profile.note = (seller_profile.note or "") + f"\nlogo:{unique_name}"
+                else:
+                    flash("Logo exceeded 3MB; skipped.", "error")
+            else:
+                flash("Unsupported logo type; skipped.", "error")
+
         user = SellerUser(
             username=username,
             email=email,
@@ -557,27 +604,7 @@ def seller_register():
         flash("Seller account created. Please log in.", "success")
         return redirect(url_for("seller_login"))
 
-    return render_template("seller_register.html")
-
-@app.route("/seller/login", methods=["GET","POST"])
-def seller_login():
-    if request.method == "POST":
-        user_or_email = (request.form.get("username") or "").strip()
-        password = request.form.get("password") or ""
-        u = SellerUser.query.filter((SellerUser.username==user_or_email)|(SellerUser.email==user_or_email)).first()
-        if u and check_password_hash(u.password_hash, password):
-            session["seller_id"] = u.id
-            flash("Logged in.", "success")
-            return redirect(url_for("seller_dashboard"))
-        flash("Invalid credentials.", "error")
-        return redirect(url_for("seller_login"))
-    return render_template("seller_login.html")
-
-@app.route("/seller/logout")
-def seller_logout():
-    session.pop("seller_id", None)
-    flash("Logged out.", "success")
-    return redirect(url_for("index"))
+    return render_template("auth_register.html")
 
 @app.route("/seller/login/request-otp", methods=["POST"])
 def seller_request_otp():
@@ -909,27 +936,39 @@ def sitemap_xml():
         (f"{base}/shop", "0.9"),
         (f"{base}/seller", "0.5"),
     ]
+    # add recent products (limit to 2000)
     for p in Product.query.order_by(Product.created_at.desc()).limit(2000):
         pages.append((f"{base}{url_for('product_detail', product_id=p.id)}", "0.8"))
 
-    xml = ['<?xml version="1.0" encoding="UTF-8"?>',
-           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>',
+                 '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
     today = datetime.utcnow().date().isoformat()
     for loc, priority in pages:
-        xml += [
-            "<url>",
-            f"<loc>{loc}</loc>",
-            f"<lastmod>{today}</lastmod>",
-            "<changefreq>daily</changefreq>",
-            f"<priority>{priority}</priority>",
-            "</url>",
+        xml_lines += [
+            "  <url>",
+            f"    <loc>{loc}</loc>",
+            f"    <lastmod>{today}</lastmod>",
+            "    <changefreq>daily</changefreq>",
+            f"    <priority>{priority}</priority>",
+            "  </url>",
         ]
-    xml.append("</urlset>")
-    resp = make_response("\n".join(xml), 200)
+    xml_lines.append("</urlset>")
+    resp = make_response("\n".join(xml_lines), 200)
     resp.mimetype = "application/xml"
     return resp
+@app.route('/seed-demo', methods=['POST'])
+def seed_demo_route():
+    if app.config.get('ENV') != 'development' and not os.environ.get('ALLOW_DEMO_SEED'):
+        return ('Not allowed', 403)
+    # call the seed function from seed_demo.py or inline small seed here.
+    try:
+        from seed_demo import seed
+        seed()
+        return ('ok', 200)
+    except Exception as e:
+        print("seed error", e)
+        return (str(e), 500)
 
 # ---------- Run ----------
 if __name__ == "__main__":
-    # For local dev on your network, use host="0.0.0.0"
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)

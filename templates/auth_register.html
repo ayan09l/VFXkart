@@ -1,0 +1,42 @@
+﻿{% extends "_base.html" %}
+{% block title %}Register — VFXKart{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-10">
+
+  <h1 class="text-2xl font-bold mb-4">Create an account</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-wrap">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('auth_register') }}" class="grid gap-4">
+    <div>
+      <label>Username</label>
+      <input name="username" type="text" required class="w-full p-2 rounded bg-black/20">
+    </div>
+
+    <div>
+      <label>Email</label>
+      <input name="email" type="email" required class="w-full p-2 rounded bg-black/20">
+    </div>
+
+    <div>
+      <label>Password</label>
+      <input name="password" type="password" required class="w-full p-2 rounded bg-black/20">
+    </div>
+
+    <button type="submit" class="btn w-full">Register</button>
+  </form>
+
+  <p class="mt-3 text-sm">
+    Already have an account? <a href="{{ url_for('auth_login') }}">Log in</a>
+  </p>
+</div>
+{% endblock %}

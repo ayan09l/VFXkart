@@ -1,100 +1,69 @@
-﻿<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Seller Login — VFXKart</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
-  <style>
-    .tabs{display:flex;gap:8px;margin-bottom:12px}
-    .tab{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);cursor:pointer;color:var(--muted);text-decoration:none}
-    .tab.active{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#071026;border:none}
-    .hide{display:none}
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div class="brand">
-        <div class="logo">VK</div>
-        <div>
-          <div style="font-weight:700">VFXKart</div>
-          <div style="color:var(--muted);font-size:13px">Seller login</div>
+﻿{% extends "_base.html" %}
+{% block title %}Seller Login — VFXKart{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-12">
+  <a href="{{ url_for('index') }}" class="inline-block mb-6 text-lg font-bold">← Back to VFXKart</a>
+
+  <div class="bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] border border-white/5 rounded-2xl p-6 shadow-xl">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <h1 class="text-2xl font-extrabold">Seller sign in</h1>
+        <p class="text-sm text-slate-400">Use password or request an OTP to sign in.</p>
+      </div>
+      <a href="{{ url_for('seller_register') }}" class="text-sm text-slate-300 underline">Create account</a>
+    </div>
+
+    {% include "_auth_shared.html" %}
+
+    <div class="tabs flex gap-2 mb-4" role="tablist" aria-label="Login methods">
+      <button id="tab-pass" class="flex-1 py-2 rounded-lg bg-white/4 font-semibold" role="tab" aria-selected="true">Password</button>
+      <button id="tab-otp"  class="flex-1 py-2 rounded-lg border border-white/6 font-semibold" role="tab" aria-selected="false">OTP</button>
+    </div>
+
+    <div id="panel-pass" role="tabpanel">
+      <form method="post" action="{{ url_for('seller_login') }}" class="grid gap-3" novalidate>
+        <div class="field">
+          <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email">
+          <label>Username or email</label>
         </div>
-      </div>
-      <div class="actions">
-        <a href="/">← Back</a>
-      </div>
-    </header>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endwith %}
+        <div class="field">
+          <input name="password" type="password" placeholder=" " required autocomplete="current-password" aria-label="Password">
+          <label>Password</label>
+        </div>
 
-    <div class="card" style="max-width:520px;margin:0 auto">
-      <div class="tabs">
-        <a id="tab-password" class="tab">Password</a>
-        <a id="tab-otp" class="tab">OTP</a>
-      </div>
-
-      <!-- PASSWORD FORM -->
-      <form id="form-password" method="post" action="{{ url_for('seller_login') }}" style="display:flex;flex-direction:column;gap:12px">
-        <input name="username" placeholder="Username or email" required>
-        <input name="password" type="password" placeholder="Password" required>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button class="btn" type="submit">Sign in</button>
-          <a class="btn ghost" href="/seller/register" style="text-decoration:none">Create account</a>
+        <div class="flex gap-3 items-center">
+          <button type="submit" class="flex-1 py-3 rounded-xl font-bold bg-gradient-to-r from-accent1 to-accent2 text-black">Sign in</button>
+          <a href="{{ url_for('seller_register') }}" class="px-4 py-3 rounded-xl border border-white/6 text-sm text-slate-300">Create</a>
         </div>
       </form>
+    </div>
 
-      <!-- OTP REQUEST + VERIFY -->
-      <div id="form-otp-wrap" class="hide" style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
-        <!-- Request code -->
-        <form id="form-otp-request" method="post" action="{{ url_for('seller_request_otp') }}" style="display:flex;flex-direction:column;gap:12px">
-          <input name="username" placeholder="Username or email" required>
-          <button class="btn" type="submit">Send code</button>
-          <div class="note">We’ll send a 6-digit code to your email. (In dev, it prints in the server console.)</div>
-        </form>
+    <div id="panel-otp" class="hidden" role="tabpanel" aria-hidden="true">
+      <form method="post" action="{{ url_for('seller_request_otp') }}" class="grid gap-3 mb-3" novalidate>
+        <div class="field">
+          <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email for OTP">
+          <label>Username or email</label>
+        </div>
+        <button id="sendBtn" type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-accent1 to-accent2 text-black">Send code</button>
+        <p class="text-xs text-slate-400">We’ll email a 6-digit code. (Dev: code prints in server console.)</p>
+      </form>
 
-        <!-- Verify code -->
-        <form id="form-otp-verify" method="post" action="{{ url_for('seller_verify_otp') }}" style="display:flex;flex-direction:column;gap:12px">
-          <input name="username" placeholder="Username or email" required>
-          <input name="otp" placeholder="6-digit code" maxlength="6" required>
-          <button class="btn" type="submit">Verify & Sign in</button>
-        </form>
-      </div>
+      <form method="post" action="{{ url_for('seller_verify_otp') }}" class="grid gap-3" novalidate>
+        <div class="field">
+          <input name="username" type="text" placeholder=" " required autocomplete="username" aria-label="Username or email to verify">
+          <label>Username or email</label>
+        </div>
+        <div class="field">
+          <input name="otp" type="text" maxlength="6" placeholder=" " required aria-label="6-digit code">
+          <label>6-digit code</label>
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl font-bold bg-white/6 text-white">Verify & Sign in</button>
+      </form>
     </div>
   </div>
 
-  <script>
-    const tabPass = document.getElementById('tab-password');
-    const tabOtp = document.getElementById('tab-otp');
-    const formPass = document.getElementById('form-password');
-    const formOtpWrap = document.getElementById('form-otp-wrap');
-
-    function setMode(mode){
-      const isOtp = mode === 'otp';
-      tabPass.classList.toggle('active', !isOtp);
-      tabOtp.classList.toggle('active', isOtp);
-      formPass.style.display = isOtp ? 'none' : 'flex';
-      formOtpWrap.style.display = isOtp ? 'flex' : 'none';
-
-      // update ?mode= in URL without reload
-      const url = new URL(window.location);
-      url.searchParams.set('mode', isOtp ? 'otp' : 'password');
-      window.history.replaceState({}, '', url);
-    }
-
-    tabPass.addEventListener('click', ()=> setMode('password'));
-    tabOtp.addEventListener('click', ()=> setMode('otp'));
-
-    // initial mode from query (?mode=otp)
-    const params = new URLSearchParams(window.location.search);
-    const startMode = params.get('mode') === 'otp' ? 'otp' : 'password';
-    setMode(startMode);
-  </script>
-</body>
-</html>
+  <div class="mt-6 text-center text-sm text-slate-400">© {{ now().year if now is defined else '2025' }} VFXKart</div>
+</div>
+{% endblock %}
