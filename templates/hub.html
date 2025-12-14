@@ -1,0 +1,143 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — Platform{% endblock %}
+
+{% block content %}
+
+<style>
+  .hub-wrap{
+    padding:60px 0 20px;
+  }
+
+  .hub-head{
+    max-width:760px;
+    margin-bottom:42px;
+  }
+
+  .hub-head h1{
+    font-size:2.4rem;
+    font-weight:700;
+    margin:0 0 12px;
+    color:#e5edff;
+  }
+
+  .hub-head p{
+    font-size:1.05rem;
+    color:#b6c2e2;
+    line-height:1.6;
+  }
+
+  .hub-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:22px;
+    margin-top:24px;
+  }
+
+  .hub-card{
+    background:rgba(15,23,42,0.65);
+    border:1px solid rgba(148,163,184,0.28);
+    border-radius:14px;
+    padding:22px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    transition:border .15s ease, transform .15s ease;
+  }
+
+  .hub-card:hover{
+    border-color:#22d3ee;
+    transform:translateY(-2px);
+  }
+
+  .hub-card h3{
+    margin:0 0 10px;
+    font-size:1.15rem;
+    font-weight:600;
+  }
+
+  .hub-card p{
+    font-size:0.92rem;
+    color:#aab7dd;
+    line-height:1.55;
+    margin-bottom:18px;
+  }
+
+  .hub-card a{
+    align-self:flex-start;
+    text-decoration:none;
+    font-size:0.9rem;
+    font-weight:600;
+    color:#22d3ee;
+  }
+
+  .hub-card a:hover{
+    text-decoration:underline;
+  }
+</style>
+
+<section class="hub-wrap">
+
+  <div class="hub-head">
+    <h1>Welcome to VFXKart</h1>
+    <p>
+      VFXKart is a digital commerce platform for creators, learners and studios.
+      Access tools, learning resources, digital products and verified partners —
+      all in one professional ecosystem.
+    </p>
+  </div>
+
+  <div class="hub-grid">
+
+    <!-- Marketplace -->
+    <div class="hub-card">
+      <div>
+        <h3>Marketplace</h3>
+        <p>
+          Browse digital products, assets and tools offered by verified creators
+          and studios. Transparent pricing. Direct access.
+        </p>
+      </div>
+      <a href="{{ url_for('shop') }}">Go to Marketplace →</a>
+    </div>
+
+    <!-- Learning -->
+    <div class="hub-card">
+      <div>
+        <h3>Learning</h3>
+        <p>
+          Structured learning materials for UG, PG and skill-based growth.
+          Practical content designed for real-world use.
+        </p>
+      </div>
+      <a href="#">Explore Learning →</a>
+    </div>
+
+    <!-- Creators -->
+    <div class="hub-card">
+      <div>
+        <h3>Creators & Partners</h3>
+        <p>
+          Sell products, publish content or collaborate as a verified partner
+          on the VFXKart platform.
+        </p>
+      </div>
+      <a href="{{ url_for('seller_root') }}">Become a Partner →</a>
+    </div>
+
+    <!-- About -->
+    <div class="hub-card">
+      <div>
+        <h3>About VFXKart</h3>
+        <p>
+          Learn about our vision, platform standards and how we are building
+          a sustainable creator-driven ecosystem.
+        </p>
+      </div>
+      <a href="#">Learn more →</a>
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}

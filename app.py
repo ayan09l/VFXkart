@@ -21,7 +21,7 @@ from flask import (
     Flask, render_template, request, redirect, url_for, flash,
     session, Response, abort, send_from_directory, make_response
 )
-from werkzeug.utils import secure_filename, safe_join
+from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
@@ -309,6 +309,22 @@ def seller_root():
 @app.route("/")
 def index():
     return render_template("index.html", user=current_user if current_user.is_authenticated else None)
+
+@app.route("/multimedia")
+def multimedia():
+    return render_template("coming_soon.html", title="Multimedia Hub")
+
+@app.route("/study")
+def study():
+    return render_template("coming_soon.html", title="Study Hub")
+
+@app.route("/tools")
+def tools():
+    return render_template("coming_soon.html", title="Tools")
+
+@app.route("/services")
+def services():
+    return render_template("coming_soon.html", title="Services")
 
 # ---------- Shop ----------
 @app.route("/shop")
@@ -958,7 +974,7 @@ def sitemap_xml():
     return resp
 @app.route('/seed-demo', methods=['POST'])
 def seed_demo_route():
-    if app.config.get('ENV') != 'development' and not os.environ.get('ALLOW_DEMO_SEED'):
+    if not app.debug and not os.environ.get("ALLOW_DEMO_SEED"):
         return ('Not allowed', 403)
     # call the seed function from seed_demo.py or inline small seed here.
     try:
@@ -968,6 +984,10 @@ def seed_demo_route():
     except Exception as e:
         print("seed error", e)
         return (str(e), 500)
+@app.route("/hub")
+def hub():
+    return render_template("hub.html")
+
 
 # ---------- Run ----------
 if __name__ == "__main__":

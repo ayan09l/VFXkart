@@ -158,7 +158,8 @@ def seller_register():
         flash("Account created. Please log in.", "success")
         return redirect(url_for("seller_login"))
 
-    return render_template("auth_register.html")
+    return render_template("seller_register.html")
+
 
 @app.route("/seller/login", methods=["GET","POST"])
 def seller_login():

@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{% block title %}VFXKart{% endblock %}</title>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-GG6L4FMR08"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-GG6L4FMR08');
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
 
@@ -43,7 +52,6 @@
       z-index:-3;
     }
 
-    /* grid like Jarvis panels */
     .hud-bg{
       background-image:
         repeating-linear-gradient(90deg, rgba(148,163,184,0.12) 0 1px, transparent 1px 80px),
@@ -51,7 +59,6 @@
       opacity:0.28;
     }
 
-    /* rotating HUD circles */
     .hud-rings::before,
     .hud-rings::after{
       content:"";
@@ -77,7 +84,6 @@
       to{transform:rotate(360deg);}
     }
 
-    /* soft scanlines */
     .hud-scan{
       background-image:linear-gradient(
         to bottom,
@@ -95,8 +101,6 @@
       from{background-position-y:0;}
       to{background-position-y:220px;}
     }
-
-    /* ---------- LAYOUT / HEADER ---------- */
 
     header.nav{
       display:flex;
@@ -237,7 +241,6 @@
       z-index:1;
     }
 
-    /* Flash messages */
     .flash-wrap{margin-bottom:1.1rem;display:flex;flex-direction:column;gap:0.6rem;}
     .flash{
       padding:10px 14px;
@@ -285,7 +288,7 @@
         font-size:0.86rem;
       }
       .btn-cta{
-        display:none; /* save space on tiny screens */
+        display:none;
       }
       footer.footer{
         flex-direction:column;
@@ -296,12 +299,10 @@
 </head>
 
 <body>
-  <!-- HUD layered background -->
   <div class="hud-bg"></div>
   <div class="hud-rings"></div>
   <div class="hud-scan"></div>
 
-  <!-- NAVBAR -->
   <header class="nav">
     <a href="{{ url_for('index') }}" class="brand">VFXKart</a>
 
@@ -326,7 +327,6 @@
     </div>
   </header>
 
-  <!-- MAIN CONTENT -->
   <main class="container">
     {% with msgs = get_flashed_messages(with_categories=true) %}
       {% if msgs %}
@@ -341,7 +341,6 @@
     {% block content %}{% endblock %}
   </main>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <span>© 2025 VFXKart</span>
     <span>HUD mode • Iron-Man style UI</span>
