@@ -1,34 +1,134 @@
 ﻿{% extends "_base.html" %}
 {% block title %}{{ product.title }} — VFXKart{% endblock %}
+
 {% block content %}
-<article class="product">
-  <div class="gallery">
-    {% if images %}
-      <img class="hero" src="{{ images[0].full }}" alt="{{ product.title }}">
-      <div class="thumbs">
-        {% for im in images %}
-          <img src="{{ im.thumb }}" data-full="{{ im.full }}" alt="thumb">
-        {% endfor %}
-      </div>
+
+<style>
+.product-wrap{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:36px;
+}
+
+@media(max-width:900px){
+  .product-wrap{grid-template-columns:1fr;}
+}
+
+.product-preview{
+  background:rgba(15,23,42,0.7);
+  border:1px solid rgba(148,163,184,0.25);
+  border-radius:16px;
+  padding:18px;
+}
+
+.product-preview img{
+  width:100%;
+  border-radius:12px;
+  object-fit:contain;
+}
+
+.product-info h1{
+  font-size:2rem;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.seller-line{
+  color:#9db3da;
+  font-size:0.95rem;
+  margin-bottom:14px;
+}
+
+.price{
+  font-size:2rem;
+  font-weight:900;
+  color:#22d3ee;
+  margin:14px 0 22px;
+}
+
+.desc{
+  color:#c7d2fe;
+  line-height:1.6;
+  margin-bottom:24px;
+}
+
+.buy-box{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.buy-btn{
+  padding:10px 22px;
+  border-radius:999px;
+  background:linear-gradient(120deg,#22d3ee,#38bdf8);
+  color:#020617;
+  font-weight:800;
+  text-decoration:none;
+  border:none;
+}
+
+.cart-btn{
+  padding:10px 22px;
+  border-radius:999px;
+  background:transparent;
+  border:1px solid rgba(148,163,184,0.4);
+  color:#e5edff;
+  font-weight:700;
+}
+
+.trust-box{
+  margin-top:28px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(15,23,42,0.65);
+  border:1px solid rgba(148,163,184,0.25);
+  color:#9db3da;
+  font-size:0.9rem;
+}
+</style>
+
+<section class="product-wrap">
+
+  <!-- LEFT: PREVIEW -->
+  <div class="product-preview">
+    {% if images and images[0].full %}
+      <img src="{{ images[0].full }}" alt="{{ product.title }}">
     {% else %}
-      <div class="img ph big">No image</div>
+      <div style="height:300px;background:#0b1220;border-radius:12px;"></div>
     {% endif %}
   </div>
-  <div class="meta">
-    <h2>{{ product.title }}</h2>
-    <div class="price big">{{ product.price or '—' }}</div>
-    <div class="muted">Seller: {{ seller_name }}</div>
-    <p>{{ product.description }}</p>
-    <form method="post" action="{{ url_for('cart_add') }}">
-      <input type="hidden" name="product_id" value="{{ product.id }}">
-      <label>Qty <input type="number" name="qty" value="1" min="1"></label>
-      <button class="btn">Add to cart</button>
-    </form>
+
+  <!-- RIGHT: INFO -->
+  <div class="product-info">
+    <h1>{{ product.title }}</h1>
+
+    <div class="seller-line">
+      Sold by <strong>{{ seller_name }}</strong> • Digital Product
+    </div>
+
+    <div class="price">₹{{ product.price }}</div>
+
+    <div class="desc">
+      {{ product.description or "No description provided." }}
+    </div>
+
+    <div class="buy-box">
+      <form method="post" action="{{ url_for('cart_add') }}">
+        <input type="hidden" name="product_id" value="{{ product.id }}">
+        <button class="buy-btn">Add to Cart</button>
+      </form>
+
+      <a href="{{ url_for('cart_view') }}" class="cart-btn">View Cart</a>
+    </div>
+
+    <div class="trust-box">
+      ✔ Instant digital delivery<br>
+      ✔ Secure payment processing<br>
+      ✔ Verified seller marketplace
+    </div>
   </div>
-</article>
-<script>
-document.querySelectorAll('.thumbs img').forEach(t=>{
-  t.addEventListener('click',()=>{document.querySelector('.gallery .hero').src=t.dataset.full;})
-})
-</script>
+
+</section>
+
 {% endblock %}

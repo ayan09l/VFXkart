@@ -1,5 +1,5 @@
 ﻿{% extends "_base.html" %}
-{% block title %}VFXKart — Digital Commerce Platform{% endblock %}
+{% block title %}VFXKart — Creator Platform{% endblock %}
 
 {% block content %}
 
@@ -10,62 +10,61 @@
     z-index:-1;
     background:
       radial-gradient(circle at 30% 20%, rgba(56,189,248,0.18), transparent 60%),
-      radial-gradient(circle at 70% 80%, rgba(168,85,247,0.16), transparent 60%);
-    filter:blur(42px);
-    opacity:0.45;
+      radial-gradient(circle at 70% 80%, rgba(168,85,247,0.18), transparent 60%);
+    filter:blur(40px);
+    opacity:0.55;
   }
 
   .hero-wrap{
-    padding:90px 0 40px 0;
-    text-align:left;
+    padding:90px 0 60px;
+    max-width:900px;
   }
 
   .hero-title{
-    font-size:2.6rem;
-    font-weight:700;
-    line-height:1.1;
-    max-width:720px;
+    font-size:2.9rem;
+    font-weight:900;
+    line-height:1.05;
+    max-width:820px;
   }
 
   .hero-sub{
     margin-top:14px;
-    max-width:680px;
-    color:#b6c2e2;
-    font-size:1.05rem;
-    line-height:1.6;
+    max-width:760px;
+    color:#aab7dd;
+    font-size:1.08rem;
   }
 
   .hero-cta{
+    margin-top:32px;
     display:flex;
     gap:16px;
-    margin-top:28px;
+    flex-wrap:wrap;
   }
 
-  .hero-card-grid{
-    margin-top:52px;
+  .hero-grid{
+    margin-top:70px;
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-    gap:18px;
+    gap:22px;
   }
 
   .hero-card{
-    background:rgba(15,23,42,0.6);
+    background:rgba(15,23,42,0.7);
     border:1px solid rgba(148,163,184,0.25);
-    border-radius:14px;
-    padding:20px;
+    border-radius:16px;
+    padding:22px;
   }
 
-  .hero-card h4{
+  .hero-card h3{
     margin:0 0 6px;
-    font-weight:600;
-    font-size:1.05rem;
+    font-size:1.2rem;
+    font-weight:700;
   }
 
   .hero-card p{
     margin:0;
     color:#9db3da;
-    font-size:0.92rem;
-    line-height:1.5;
+    font-size:0.95rem;
   }
 </style>
 
@@ -77,53 +76,53 @@
     display:inline-block;
     padding:6px 12px;
     border-radius:999px;
-    background:rgba(56,189,248,0.14);
+    background:rgba(56,189,248,0.16);
     color:#22d3ee;
-    font-weight:600;
+    font-weight:700;
     letter-spacing:0.04em;
-    font-size:0.75rem;
   ">
-    PLATFORM • EARLY ACCESS
+    CREATOR PLATFORM • BETA
   </div>
 
   <h1 class="hero-title">
-    One platform for digital creation,<br>
-    learning and commerce.
+    One platform for creators,<br>
+    learners & digital commerce.
   </h1>
 
   <p class="hero-sub">
-    VFXKart is a unified platform built for creators, learners and studios.
-    Access digital products, learning resources, tools and verified partners
-    in one professional ecosystem.
+    VFXKart is a unified ecosystem for multimedia creators — combining
+    digital assets, learning resources, tools and services
+    under one professional platform.
   </p>
 
   <div class="hero-cta">
-    <a href="{{ url_for('hub') }}" class="btn-cta">Explore Platform</a>
+    <a href="{{ url_for('hub') }}" class="btn-cta">Enter Platform</a>
+    <a href="{{ url_for('seller_root') }}" class="btn-ghost">Become a Seller</a>
   </div>
 
-  <div class="hero-card-grid">
+  <div class="hero-grid">
 
     <div class="hero-card">
-      <h4>Multimedia & Digital Assets</h4>
+      <h3>🎬 Digital Marketplace</h3>
       <p>
-        Curated digital products including VFX assets, media resources
-        and production-ready content.
+        Buy and sell VFX assets, presets, motion packs
+        and production-ready digital products.
       </p>
     </div>
 
     <div class="hero-card">
-      <h4>Learning & Education</h4>
+      <h3>📚 Learning & Resources</h3>
       <p>
-        Structured learning material for UG, PG and skill-based growth,
-        designed for real-world application.
+        UG & PG study material, creator education,
+        and skill-focused learning paths.
       </p>
     </div>
 
     <div class="hero-card">
-      <h4>Tools & Partner Services</h4>
+      <h3>🧰 Tools & Services</h3>
       <p>
-        Access tools, services and verified partners to support
-        creative and technical workflows.
+        Creator tools, workflows, services
+        and professional production solutions.
       </p>
     </div>
 

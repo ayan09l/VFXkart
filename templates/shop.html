@@ -1,267 +1,181 @@
 ﻿{% extends "_base.html" %}
-{% block title %}Shop — VFXKart{% endblock %}
+{% block title %}Marketplace — VFXKart{% endblock %}
 
 {% block content %}
 
-<!-- ================= NEON GLOBAL STYLE ================= -->
 <style>
-:root {
-  --neon-blue: #00b3ff;
-  --neon-soft: rgba(0,179,255,0.4);
-  --bg-dark: #080d17;
-  --card-dark: #0f1627;
-  --card-border: rgba(255,255,255,0.06);
+:root{
+  --bg-dark:#0b1220;
+  --card:#121b2e;
+  --border:rgba(255,255,255,0.08);
+  --accent:#38bdf8;
 }
 
-body {
-  background: var(--bg-dark);
-  color: #dce9ff;
+.market-wrap{padding-top:10px}
+
+.market-head{
+  text-align:center;
+  margin:18px 0 26px;
+}
+.market-head h1{
+  font-size:2.6rem;
+  font-weight:700;
+  margin:0;
+}
+.market-head p{
+  margin-top:10px;
+  color:#b6c2e2;
+  font-size:1.05rem;
 }
 
-/* HEADER */
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  padding: 14px 0;
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  text-align: center;
-}
-.sticky-header h2 {
-  margin: 0;
-  font-weight: 800;
-  font-size: 22px;
-  color: #e6f3ff;
-  text-shadow: 0 0 8px var(--neon-blue);
+.filter-box{
+  max-width:960px;
+  margin:0 auto 30px;
+  padding:22px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:14px;
 }
 
-/* CATEGORY BAR */
-.cat-bar {
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  padding: 14px 6px;
-  margin: 0 auto 28px;
-  max-width: 960px;
-}
-.cat-pill {
-  padding: 10px 18px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 12px;
-  color: #cfe4ff;
-  font-weight: 600;
-  white-space: nowrap;
-  border: 1px solid rgba(255,255,255,0.09);
-  transition: 0.3s;
-}
-.cat-pill:hover {
-  background: var(--neon-blue);
-  color: #000;
+.filter-input, .filter-select{
+  padding:12px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  color:white;
 }
 
-/* FILTER BOX */
-.filter-box {
-  max-width: 940px;
-  margin: 0 auto 32px;
-  padding: 26px;
-  background: rgba(255,255,255,0.03);
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.04);
-  backdrop-filter: blur(8px);
+.btn-main{
+  background:var(--accent);
+  color:#020617;
+  font-weight:700;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
 }
-.filter-input, .filter-select {
-  padding: 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: white;
-}
-
-/* ==== PRODUCT CARD ==== */
-.neon-card {
-  background: var(--card-dark);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 16px;
-  transition: 0.3s ease;
-  position: relative;
-}
-.neon-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 0 18px var(--neon-soft);
+.btn-muted{
+  background:#1f2937;
+  color:#e5edff;
+  font-weight:600;
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+  text-decoration:none;
 }
 
-/* WISHLIST BUTTON */
-.wish-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 22px;
-  cursor: pointer;
-  transition: 0.25s;
-  text-shadow: 0 0 6px rgba(255,255,255,0.3);
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
 }
-.wish-btn.active {
-  color: var(--neon-blue);
-  text-shadow: 0 0 10px var(--neon-blue);
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:contain;
+  margin-bottom:12px;
 }
-
-/* BUTTONS */
-.neon-btn {
-  background: var(--neon-blue);
-  color: #000;
-  padding: 10px 16px;
-  text-decoration: none;
-  display: block;
-  text-align: center;
-  border-radius: 10px;
-  font-weight: 700;
-  transition: 0.25s;
+.card h3{
+  font-size:16px;
+  font-weight:600;
+  margin:0 0 4px;
 }
-.neon-btn:hover {
-  background: #33caff;
+.card p{
+  font-size:13px;
+  color:#9db3da;
+  margin:0 0 10px;
 }
-
-/* PAGINATION */
-.pagination a {
-  color: var(--neon-blue);
-  text-decoration: none;
-  font-weight: 700;
-  margin: 0 12px;
+.price{
+  font-size:20px;
+  font-weight:700;
+  color:#38bdf8;
+  margin-bottom:12px;
+}
+.card a{
+  margin-top:auto;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  background:#38bdf8;
+  color:#020617;
+  font-weight:700;
+  text-decoration:none;
 }
 </style>
 
-<!-- ================= HEADER ================= -->
-<div class="sticky-header">
-  <h2>VFXKart Marketplace</h2>
-</div>
+<div class="market-wrap">
 
-<!-- ================= HERO ================= -->
-<h1 style="
-  font-size:42px;
-  font-weight:900;
-  text-align:center;
-  margin-top:18px;
-  color:#e9f4ff;
-  text-shadow:0 0 14px var(--neon-blue);
-">
-  Premium VFX Assets for Creators
-</h1>
+  <!-- HEADER -->
+  <div class="market-head">
+    <h1>Marketplace</h1>
+    <p>Verified digital products from creators and partners.</p>
+  </div>
 
-<p style="
-  text-align:center;
-  color:#a9bfdf;
-  max-width:760px;
-  margin:14px auto 34px;
-  font-size:17px;
-">
-  LUTs, Overlays, Transitions, Editing Packs, Motion Graphics, Project Files & More.
-</p>
+  <!-- FILTERS -->
+  <div class="filter-box">
+    <form method="get" action="{{ url_for('shop') }}"
+      style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
 
-<!-- ================= CATEGORY BAR ================= -->
-<div class="cat-bar">
-  <div class="cat-pill">All</div>
-  <div class="cat-pill">LUTs</div>
-  <div class="cat-pill">Overlays</div>
-  <div class="cat-pill">Transitions</div>
-  <div class="cat-pill">SFX Packs</div>
-  <div class="cat-pill">VFX Assets</div>
-  <div class="cat-pill">Motion Graphics</div>
-  <div class="cat-pill">Project Files</div>
-  <div class="cat-pill">Presets</div>
-</div>
+      <input class="filter-input" type="text" name="q" placeholder="Search products"
+        value="{{ query_args.q }}">
 
-<!-- ================= FILTER SECTION ================= -->
-<div class="filter-box">
-  <form method="get" action="{{ url_for('shop') }}"
-    style="display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 14px;">
+      <select name="seller" class="filter-select">
+        <option value="">All sellers</option>
+        {% for s in sellers %}
+          <option value="{{ s }}" {% if query_args.seller==s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
 
-    <input type="text" name="q" placeholder="Search…" value="{{ query_args.q }}" class="filter-input">
+      <input class="filter-input" type="number" step="0.01" name="min_price"
+        placeholder="Min price" value="{{ query_args.min_price }}">
 
-    <select name="seller" class="filter-select">
-      <option value="">All sellers</option>
-      {% for s in sellers %}
-        <option value="{{ s }}" {% if query_args.seller==s %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
+      <input class="filter-input" type="number" step="0.01" name="max_price"
+        placeholder="Max price" value="{{ query_args.max_price }}">
 
-    <input type="number" step="0.01" name="min_price" placeholder="Min price"
-      value="{{ query_args.min_price }}" class="filter-input">
+      <select name="sort" class="filter-select">
+        <option value="newest" {% if query_args.sort=='newest' %}selected{% endif %}>Newest</option>
+        <option value="price_asc" {% if query_args.sort=='price_asc' %}selected{% endif %}>Price ↑</option>
+        <option value="price_desc" {% if query_args.sort=='price_desc' %}selected{% endif %}>Price ↓</option>
+      </select>
 
-    <input type="number" step="0.01" name="max_price" placeholder="Max price"
-      value="{{ query_args.max_price }}" class="filter-input">
+      <button class="btn-main">Apply</button>
+      <a href="{{ url_for('shop') }}" class="btn-muted">Reset</a>
+    </form>
+  </div>
 
-    <select name="sort" class="filter-select">
-      <option value="newest" {% if query_args.sort=='newest' %}selected{% endif %}>Newest</option>
-      <option value="price_asc" {% if query_args.sort=='price_asc' %}selected{% endif %}>Price ↑</option>
-      <option value="price_desc" {% if query_args.sort=='price_desc' %}selected{% endif %}>Price ↓</option>
-    </select>
-
-    <button type="submit" class="neon-btn">Apply</button>
-    <a href="{{ url_for('shop') }}" class="neon-btn" style="background:#222;color:white;">Reset</a>
-  </form>
-</div>
-
-<!-- ================= RESULTS ================= -->
-<p style="text-align:center;margin:10px 0 20px;color:#9fb7d4;">
-  Showing {{ products|length }} of {{ total }} results.
-</p>
-
-<!-- ================= PRODUCT GRID ================= -->
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;">
-
-  {% for product in products %}
-    <div class="neon-card">
-
-      <!-- Wishlist Heart -->
-      <div class="wish-btn {% if product.is_wishlisted %}active{% endif %}">
-        ♥
-      </div>
-
-      {% if product.image %}
-        <img src="{{ product.image }}" style="width:100%;height:200px;object-fit:contain;margin-bottom:12px;">
-      {% else %}
-        <div style="height:200px;background:#1a2336;border-radius:8px;"></div>
-      {% endif %}
-
-      <h3 style="font-size:18px;font-weight:700;margin:0;color:#e1ecff;">{{ product.title }}</h3>
-
-      <p style="font-size:13px;color:#8ca3c7;margin:4px 0 8px;">
-        By {{ product.seller }}
-      </p>
-
-      <div style="font-size:22px;font-weight:800;color:var(--neon-blue);margin-bottom:12px;">
-        ₹{{ product.price }}
-      </div>
-
-      <a href="{{ url_for('product_detail', product_id=product.id) }}" class="neon-btn">
-        View Product
-      </a>
-
-    </div>
-  {% endfor %}
-</div>
-
-<!-- ================= EMPTY STATE ================= -->
-{% if products|length == 0 %}
-  <p style="text-align:center;margin-top:40px;font-size:18px;color:#6f8ab1;">
-    No products found.
+  <!-- RESULTS -->
+  <p style="text-align:center;color:#9fb7d4;margin-bottom:18px;">
+    Showing {{ products|length }} of {{ total }} products
   </p>
-{% endif %}
 
-<!-- ================= PAGINATION ================= -->
-<div style="text-align:center;margin-top:32px;font-size:18px;" class="pagination">
+  <!-- GRID -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;">
+    {% for product in products %}
+      <div class="card">
+        {% if product.image %}
+          <img src="{{ product.image }}">
+        {% else %}
+          <div style="height:180px;background:#0f172a;border-radius:8px;margin-bottom:12px;"></div>
+        {% endif %}
 
-  {% if page > 1 %}
-    <a href="{{ url_for('shop', page=page-1) }}">⟵ Prev</a>
-  {% endif %}
+        <h3>{{ product.title }}</h3>
+        <p>Seller: {{ product.seller }}</p>
+        <div class="price">₹{{ product.price }}</div>
 
-  <span style="color:white;">Page {{ page }} / {{ total_pages }}</span>
+        <a href="{{ url_for('product_detail', product_id=product.id) }}">
+          View product
+        </a>
+      </div>
+    {% endfor %}
+  </div>
 
-  {% if page < total_pages %}
-    <a href="{{ url_for('shop', page=page+1) }}">Next ⟶</a>
+  {% if products|length == 0 %}
+    <p style="text-align:center;margin-top:40px;color:#8fa6cc;">
+      No products found.
+    </p>
   {% endif %}
 
 </div>
