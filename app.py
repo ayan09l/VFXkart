@@ -304,6 +304,25 @@ def seller_root():
     if session.get("seller_id"):
         return redirect(url_for("seller_dashboard"))
     return redirect(url_for("seller_login"))
+@app.route("/learning")
+def learning():
+    return render_template("learning.html")
+@app.route("/learning/ug")
+def learning_ug():
+    return render_template("learning_ug.html")
+
+@app.route("/learning/pg")
+def learning_pg():
+    return render_template("learning_pg.html")
+
+@app.route("/learning/creators")
+def learning_creators():
+    return render_template("learning_creators.html")
+
+@app.route("/learning/ug/semester/<int:sem>")
+def learning_ug_semester(sem):
+    return render_template("learning_ug_semester.html", sem=sem)
+
 
 # ---------- Pages ----------
 @app.route("/")

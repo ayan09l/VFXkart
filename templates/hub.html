@@ -4,9 +4,7 @@
 {% block content %}
 
 <style>
-  .hub-wrap{
-    padding:50px 0;
-  }
+  .hub-wrap{ padding:50px 0; }
 
   .hub-title{
     font-size:2.6rem;
@@ -70,6 +68,7 @@
     background:transparent;
     color:#c7d2fe;
     border:1px solid rgba(148,163,184,0.4);
+    cursor:default;
   }
 
   .hub-note{
@@ -83,23 +82,19 @@
     line-height:1.6;
   }
 
-  .hub-note strong{
-    color:#e5edff;
-  }
+  .hub-note strong{ color:#e5edff; }
 </style>
 
 <section class="hub-wrap">
 
   <!-- INTRO -->
-  <h1 class="hub-title">
-    VFXKart Platform
-  </h1>
+  <h1 class="hub-title">VFXKart Platform</h1>
 
   <p class="hub-sub">
-    VFXKart is a unified digital commerce platform built for creators,
+    VFXKart is a unified digital platform built for creators,
     learners and professionals.
-    No gimmicks, no fake hype — just real tools, real assets and
-    a focused ecosystem.
+    No fake hype — only practical tools, structured learning
+    and real digital commerce.
   </p>
 
   <!-- MAIN GRID -->
@@ -117,16 +112,17 @@
       </a>
     </div>
 
-    <!-- Learning -->
+    <!-- Learning (ACTIVE) -->
     <div class="hub-card">
       <h3>📚 Learning</h3>
       <p>
-        Study materials, UG & PG resources, creator education,
-        structured learning paths and skill-based content.
+        UG & PG study materials, creator education,
+        structured learning paths and skill-based content
+        designed for real academic & industry use.
       </p>
-      <span class="hub-btn ghost">
-        Phase 2 • Coming Soon
-      </span>
+      <a href="{{ url_for('learning') }}" class="hub-btn">
+        Explore Learning
+      </a>
     </div>
 
     <!-- Tools -->
@@ -137,7 +133,7 @@
         and workflow solutions for professionals.
       </p>
       <span class="hub-btn ghost">
-        Phase 3 • Coming Soon
+        Planned Expansion
       </span>
     </div>
 
@@ -155,15 +151,15 @@
 
   </div>
 
-  <!-- TRUST / ROADMAP NOTE -->
+  <!-- TRUST NOTE -->
   <div class="hub-note">
-    <strong>Why VFXKart?</strong><br><br>
-    • Built as a real commerce platform, not a demo site<br>
-    • Digital-first products, instant delivery mindset<br>
-    • Creator & seller verification focused<br>
-    • Long-term roadmap (Marketplace → Learning → Tools)<br><br>
-    This platform is designed to scale step-by-step —
-    safely, legally and professionally.
+    <strong>Platform Philosophy</strong><br><br>
+    • Built as a real digital commerce & learning platform<br>
+    • No unnecessary animations or fake promises<br>
+    • Education-first, creator-focused approach<br>
+    • Step-by-step growth with stability and trust<br><br>
+    VFXKart is designed to grow long-term — clean,
+    professional and scalable.
   </div>
 
 </section>

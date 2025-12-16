@@ -1,0 +1,126 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — Learning{% endblock %}
+
+{% block content %}
+
+<style>
+  .learn-wrap{ padding:40px 0; }
+
+  .learn-title{
+    font-size:2.6rem;
+    font-weight:800;
+    margin-bottom:12px;
+  }
+
+  .learn-sub{
+    color:#aab7dd;
+    max-width:760px;
+    margin-bottom:42px;
+    font-size:1.05rem;
+    line-height:1.6;
+  }
+
+  .learn-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:24px;
+  }
+
+  .learn-card{
+    background:rgba(15,23,42,0.75);
+    border:1px solid rgba(148,163,184,0.25);
+    border-radius:16px;
+    padding:24px;
+    transition:0.25s ease;
+  }
+
+  .learn-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 18px rgba(56,189,248,0.25);
+  }
+
+  .learn-card h3{
+    margin:0 0 10px;
+    font-size:1.35rem;
+    font-weight:700;
+  }
+
+  .learn-card p{
+    margin:0 0 20px;
+    color:#9db3da;
+    font-size:0.95rem;
+    line-height:1.5;
+  }
+
+  .learn-btn{
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:999px;
+    font-weight:700;
+    text-decoration:none;
+    background:linear-gradient(120deg,#22d3ee,#38bdf8);
+    color:#020617;
+  }
+</style>
+
+<section class="learn-wrap">
+
+  <h1 class="learn-title">Learning at VFXKart</h1>
+
+  <p class="learn-sub">
+    Learning is the foundation of VFXKart.
+    Structured academics, creator skills and professional growth —
+    all built with real-world focus.
+  </p>
+
+  <div class="learn-grid">
+
+    <!-- UG -->
+    <div class="learn-card">
+      <h3>🎓 Undergraduate (UG)</h3>
+      <p>
+        Semester-wise notes, fundamentals, programming,
+        multimedia and computer science subjects
+        aligned with university syllabi.
+      </p>
+      <a href="{{ url_for('learning_ug') }}" class="learn-btn">Explore UG</a>
+    </div>
+
+    <!-- PG -->
+    <div class="learn-card">
+      <h3>🎓 Postgraduate (PG)</h3>
+      <p>
+        Advanced topics, specialization subjects,
+        research guidance and project-based learning
+        for PG students.
+      </p>
+      <a href="{{ url_for('learning_pg') }}" class="learn-btn">Explore PG</a>
+    </div>
+
+    <!-- Creators -->
+    <div class="learn-card">
+      <h3>🎬 Creators & Multimedia</h3>
+      <p>
+        Practical learning for VFX, video editing,
+        motion graphics, workflows and
+        industry-ready creator skills.
+      </p>
+      <a href="{{ url_for('learning_creators') }}" class="learn-btn">Explore Creators</a>
+    </div>
+
+    <!-- Premium -->
+    <div class="learn-card">
+      <h3>📦 Premium Learning</h3>
+      <p>
+        Structured paid courses, certification tracks,
+        curated bundles and professional learning paths
+        designed for serious growth.
+      </p>
+      <a href="#" class="learn-btn">View Programs</a>
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}

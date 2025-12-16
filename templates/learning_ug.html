@@ -1,0 +1,233 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — Undergraduate Programs{% endblock %}
+
+{% block content %}
+
+<style>
+  .ug-wrap{
+    padding:40px 0 60px;
+  }
+
+  .ug-title{
+    font-size:2.6rem;
+    font-weight:800;
+    margin-bottom:12px;
+    max-width:820px;
+  }
+
+  .ug-sub{
+    color:#aab7dd;
+    max-width:820px;
+    font-size:1.05rem;
+    line-height:1.6;
+    margin-bottom:46px;
+  }
+
+  .ug-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:24px;
+  }
+
+  .ug-card{
+    background:rgba(15,23,42,0.78);
+    border:1px solid rgba(148,163,184,0.28);
+    border-radius:18px;
+    padding:26px;
+    transition:0.25s ease;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .ug-card:hover{
+    transform:translateY(-4px);
+    box-shadow:
+      0 0 18px rgba(56,189,248,0.35),
+      0 0 50px rgba(168,85,247,0.25);
+  }
+
+  .ug-card h3{
+    margin:0 0 10px;
+    font-size:1.25rem;
+    font-weight:700;
+  }
+
+  .ug-card p{
+    margin:0 0 18px;
+    color:#9db3da;
+    font-size:0.95rem;
+    line-height:1.55;
+  }
+
+  .ug-btn{
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:999px;
+    font-weight:700;
+    text-decoration:none;
+    background:#22d3ee;
+    color:#020617;
+    font-size:0.9rem;
+  }
+
+  .ug-btn.ghost{
+    background:transparent;
+    color:#c7d2fe;
+    border:1px solid rgba(148,163,184,0.45);
+    cursor:default;
+  }
+
+  .ug-note{
+    margin-top:60px;
+    padding:28px;
+    background:rgba(15,23,42,0.65);
+    border:1px solid rgba(148,163,184,0.22);
+    border-radius:18px;
+    color:#aab7dd;
+    font-size:0.95rem;
+    line-height:1.6;
+  }
+
+  .ug-note strong{
+    color:#e5edff;
+  }
+</style>
+
+<section class="ug-wrap">
+
+  <h1 class="ug-title">Undergraduate Programs (UG)</h1>
+
+  <p class="ug-sub">
+    This section lists the core undergraduate programs offered worldwide.
+    No specialization, no semester split yet — only the base programs.
+    Content will be structured program-wise and expanded step-by-step.
+  </p>
+
+  <div class="ug-grid">
+
+    <!-- ENGINEERING / TECH -->
+    <div class="ug-card">
+      <h3>🎓 B.Tech / B.E.</h3>
+      <p>Engineering fundamentals, computing, electronics and core technical subjects.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>💻 BCA</h3>
+      <p>Computer applications, programming, databases and software fundamentals.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🧮 B.Sc Computer Science</h3>
+      <p>Algorithms, data structures, operating systems and computing theory.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🧩 B.Sc Information Technology</h3>
+      <p>IT systems, networks, web technologies and applied computing.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🧑‍💻 B.Sc Software Engineering</h3>
+      <p>Software design, development lifecycle, testing and architecture.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <!-- SCIENCE -->
+    <div class="ug-card">
+      <h3>🔬 B.Sc Physics</h3>
+      <p>Classical mechanics, electromagnetism, quantum and applied physics.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🧪 B.Sc Chemistry</h3>
+      <p>Organic, inorganic, physical chemistry and laboratory fundamentals.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>📐 B.Sc Mathematics</h3>
+      <p>Algebra, calculus, probability, statistics and mathematical reasoning.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🧬 B.Sc Biotechnology</h3>
+      <p>Molecular biology, genetics, bioinformatics and applied biotech.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🌱 B.Sc Environmental Science</h3>
+      <p>Ecology, sustainability, climate studies and environmental systems.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <!-- COMMERCE / MANAGEMENT -->
+    <div class="ug-card">
+      <h3>📊 B.Com</h3>
+      <p>Accounting, finance, business law and commerce fundamentals.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>📊 B.Com (Honours)</h3>
+      <p>Advanced commerce, finance, economics and business analytics.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🏢 BBA</h3>
+      <p>Business administration, management principles and entrepreneurship.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>🏢 BBM</h3>
+      <p>Business management, organizational behavior and leadership basics.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>📈 BMS</h3>
+      <p>Management studies, operations, marketing and strategy.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <!-- ARTS -->
+    <div class="ug-card">
+      <h3>🎨 BA (Bachelor of Arts)</h3>
+      <p>Humanities, social sciences and interdisciplinary arts education.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>📖 BA English</h3>
+      <p>Literature, linguistics, communication and critical analysis.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+    <div class="ug-card">
+      <h3>📚 BA Economics</h3>
+      <p>Microeconomics, macroeconomics, statistics and economic theory.</p>
+      <span class="ug-btn ghost">Content Building</span>
+    </div>
+
+  </div>
+
+  <div class="ug-note">
+    <strong>Roadmap:</strong><br><br>
+    • Program → Core subjects<br>
+    • Subjects → Units / modules<br>
+    • No university-specific bias<br>
+    • Clean, exam-oriented + skill-ready content<br><br>
+    Undergraduate learning will be expanded systematically and responsibly.
+  </div>
+
+</section>
+
+{% endblock %}
