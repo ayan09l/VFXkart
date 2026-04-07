@@ -4,283 +4,93 @@
 {% block content %}
 
 <style>
-  body {
-    min-height: 100vh;
-    background: #0b1325 !important;
-    color: #fff;
+  .hub-wrap{ padding:50px 0; }
+
+  .hub-title{
+    font-size:2.6rem;
+    font-weight:800;
+    margin-bottom:12px;
+    max-width:760px;
   }
 
-  .bg-glow,
-  #thetaWave {
-    display: none !important;
+  .hub-sub{
+    color:#aab7dd;
+    max-width:760px;
+    margin-bottom:42px;
+    font-size:1.05rem;
+    line-height:1.6;
   }
 
-  /* NAV & LAYOUT OVERRIDES */
-  main.container {
-    padding-top: 90px !important;
+  .hub-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:24px;
   }
 
-  #particleCanvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 0;
-    pointer-events: none;
+  .hub-card{
+    background:rgba(15,23,42,0.78);
+    border:1px solid rgba(148,163,184,0.25);
+    border-radius:18px;
+    padding:24px;
+    transition:.25s ease;
   }
 
-  .nav-inner {
-    max-width: 100% !important;
-    padding: 0 40px !important;
+  .hub-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 0 22px rgba(56,189,248,0.22);
   }
 
-  .nav-inner>.nav-island:nth-child(2) {
-    display: none !important;
+  .hub-card h3{
+    margin:0 0 10px;
+    font-size:1.28rem;
+    font-weight:700;
   }
 
-  /* THEME TOGGLE BUTTON */
-  .theme-toggle {
-    position: fixed;
-    top: 140px;
-    right: 40px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    cursor: pointer;
-    z-index: 1000;
-    backdrop-filter: blur(16px);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  .hub-card p{
+    margin:0 0 18px;
+    color:#9db3da;
+    font-size:0.96rem;
+    line-height:1.55;
   }
 
-  .theme-toggle:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1) translateY(-4px);
-    box-shadow: 0 15px 40px rgba(232, 57, 57, 0.3);
-    border-color: rgba(232, 57, 57, 0.5);
+  .hub-btn{
+    display:inline-block;
+    padding:9px 18px;
+    border-radius:999px;
+    font-weight:700;
+    text-decoration:none;
+    background:#22d3ee;
+    color:#020617;
+    font-size:0.9rem;
   }
 
-  /* LIGHT THEME STYLES */
-  body.light-theme {
-    background: #fdfdfd !important;
-    color: #0f172a !important;
+  .hub-btn.ghost{
+    background:transparent;
+    color:#c7d2fe;
+    border:1px solid rgba(148,163,184,0.4);
+    cursor:default;
   }
 
-  body.light-theme .hub-title {
-    color: #0f172a !important;
+  .hub-note{
+    margin-top:52px;
+    padding:26px;
+    background:rgba(15,23,42,0.65);
+    border:1px solid rgba(148,163,184,0.22);
+    border-radius:18px;
+    color:#aab7dd;
+    font-size:0.95rem;
+    line-height:1.6;
   }
 
-  body.light-theme .hub-sub {
-    color: #475569 !important;
-  }
-
-  body.light-theme .hub-card {
-    background: #e6e8eb !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
-  }
-
-  body.light-theme .hub-card h3 {
-    color: #0f172a !important;
-  }
-
-  body.light-theme .hub-card p {
-    color: #64748b !important;
-  }
-
-  body.light-theme .hub-card:hover {
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
-    background: #ffffff !important;
-    border-color: rgba(232, 57, 57, 0.4) !important;
-    transform: translateY(-8px) scale(1.02);
-  }
-
-  body.light-theme .hub-note {
-    background: rgba(0, 0, 0, 0.03) !important;
-    color: #475569 !important;
-  }
-
-  body.light-theme .hub-note strong {
-    color: #0f172a !important;
-  }
-
-  body.light-theme .theme-toggle {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  }
-
-  body.light-theme .nav-island {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border-color: rgba(0, 0, 0, 0.08) !important;
-  }
-
-  body.light-theme .brand {
-    color: #0f172a !important;
-  }
-
-  body.light-theme .brand span {
-    color: #e83939 !important;
-  }
-
-  body.light-theme .cart-btn {
-    border-color: rgba(0, 0, 0, 0.1) !important;
-    color: #0f172a !important;
-  }
-
-  body.light-theme .login-btn,
-  body.light-theme .user-greeting {
-    color: #0f172a !important;
-    font-weight: 600 !important;
-  }
-
-  body.light-theme .hub-btn.ghost {
-    color: #475569 !important;
-    border-color: rgba(0, 0, 0, 0.2) !important;
-  }
-
-  body.light-theme .card-icon {
-    background: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
-  }
-
-  .hub-wrap {
-    padding: 0 0 50px;
-  }
-
-  .hub-title {
-    font-size: 2.6rem;
-    font-weight: 800;
-    margin-bottom: 12px;
-    max-width: 760px;
-    color: #fff;
-  }
-
-  .hub-sub {
-    color: rgba(255, 255, 255, 0.65);
-    max-width: 760px;
-    margin-bottom: 42px;
-    font-size: 1.05rem;
-    line-height: 1.6;
-  }
-
-  .hub-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 24px;
-    background: transparent;
-    padding: 30px 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  .hub-card {
-    background: linear-gradient(160deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-radius: 20px;
-    padding: 28px 24px;
-    transition: all 0.35s cubic-bezier(0.25, 1, 0.25, 1);
-  }
-
-  .hub-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(232, 57, 57, 0.25);
-    background: linear-gradient(160deg, rgba(35, 48, 68, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-  }
-
-  .hub-card h3 {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0 0 16px;
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: -0.3px;
-  }
-
-  .card-icon {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, rgba(232, 57, 57, 0.15), rgba(192, 38, 38, 0.05));
-    border: 1px solid rgba(232, 57, 57, 0.25);
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(232, 57, 57, 0.15);
-  }
-
-  .hub-card p {
-    margin: 0 0 20px;
-    color: rgba(255, 255, 255, 0.55);
-    font-size: 0.96rem;
-    line-height: 1.6;
-  }
-
-  .hub-btn {
-    display: inline-block;
-    padding: 9px 20px;
-    border-radius: 999px;
-    font-weight: 700;
-    text-decoration: none;
-    background: linear-gradient(135deg, #e83939, #c02626);
-    color: #fff;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 14px rgba(232, 57, 57, 0.35);
-    transition: box-shadow 0.2s, transform 0.2s;
-  }
-
-  .hub-btn:hover {
-    box-shadow: 0 6px 20px rgba(232, 57, 57, 0.5);
-    transform: translateY(-1px);
-  }
-
-  .hub-btn.ghost {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    cursor: default;
-    box-shadow: none;
-  }
-
-  .hub-note {
-    margin-top: 52px;
-    padding: 26px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 18px;
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-
-  .hub-note strong {
-    color: rgba(255, 255, 255, 0.85);
-  }
+  .hub-note strong{ color:#e5edff; }
 </style>
-
-<canvas id="particleCanvas"></canvas>
 
 <section class="hub-wrap">
 
   <!-- INTRO -->
-  <h1 class="hub-title" style="position:relative; z-index:1;">VFXKart Platform</h1>
+  <h1 class="hub-title">VFXKart Platform</h1>
 
-  <p class="hub-sub" style="position:relative; z-index:1;">
+  <p class="hub-sub">
     VFXKart is a unified digital platform built for creators,
     learners and professionals.
     No fake hype — only practical tools, structured learning
@@ -290,68 +100,9 @@
   <!-- MAIN GRID -->
   <div class="hub-grid">
 
-    <!-- Learning -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">📚</div> Learning
-      </h3>
-      <p>
-        UG & PG study materials, creator education,
-        structured learning paths and skill-based content
-        designed for real academic & industry use.
-      </p>
-      <a href="{{ url_for('learning.learning_ug') }}" class="hub-btn">
-        Explore Learning
-      </a>
-    </div>
-
-    <!-- Practice Session -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🎯</div> Practice Session
-      </h3>
-      <p>
-        Engage in hands-on practical exercises, assignments, and guided
-        sessions to master your creator skills.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Live Class -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🔴</div> Live Class
-      </h3>
-      <p>
-        Join interactive, real-time sessions with industry experts
-        across various multimedia and professional domains.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- JARVIS -->
-    <div class="hub-card" onclick="toggleStudyBot()" style="cursor: pointer;">
-      <h3>
-        <div class="card-icon">🦾</div> JARVIS
-      </h3>
-      <p>
-        Lightning-fast AI assistant. Clear concepts, solve technical
-        queries, and accelerate your creative production.
-      </p>
-      <button class="hub-btn">
-        Initialize JARVIS
-      </button>
-    </div>
-
     <!-- Marketplace -->
     <div class="hub-card">
-      <h3>
-        <div class="card-icon">🎬</div> Marketplace
-      </h3>
+      <h3>🎬 Marketplace</h3>
       <p>
         Buy and sell verified VFX assets, presets, motion packs,
         LUTs, project files and production-ready digital resources.
@@ -361,95 +112,22 @@
       </a>
     </div>
 
-    <!-- Sellers -->
+    <!-- Learning (ACTIVE) -->
     <div class="hub-card">
-      <h3>
-        <div class="card-icon">💼</div> Sell on VFXKart
-      </h3>
+      <h3>📚 Learning</h3>
       <p>
-        Become a verified seller, upload digital products
-        and reach a focused creator-first audience.
+        UG & PG study materials, creator education,
+        structured learning paths and skill-based content
+        designed for real academic & industry use.
       </p>
-      <a href="{{ url_for('seller_root') }}" class="hub-btn">
-        Become a Seller
+      <a href="{{ url_for('learning') }}" class="hub-btn">
+        Explore Learning
       </a>
     </div>
 
-    <!-- Trading Class -->
+    <!-- Tools -->
     <div class="hub-card">
-      <h3>
-        <div class="card-icon">📈</div> Trading Class
-      </h3>
-      <p>
-        Master financial markets, technical analysis, and practical
-        trading strategies with structured masterclasses.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Job/Intern -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🏢</div> Job/Intern
-      </h3>
-      <p>
-        Explore the latest full-time job and internship positions
-        matched directly to your skills and qualifications.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Career Guidance -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🧭</div> Career Guidance
-      </h3>
-      <p>
-        Get personalized roadmaps, 1-on-1 mentorship, and step-by-step
-        advice for navigating your professional future.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Gym Available -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">💪</div> Gym Available
-      </h3>
-      <p>
-        Access premium wellness content, fitness routines,
-        and guided coaching to stay physically active and healthy.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Internship -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🚀</div> Internship
-      </h3>
-      <p>
-        Hands-on remote and on-site internship programs to give you
-        real-world production experience.
-      </p>
-      <span class="hub-btn ghost">
-        Coming Soon
-      </span>
-    </div>
-
-    <!-- Tools & Services -->
-    <div class="hub-card">
-      <h3>
-        <div class="card-icon">🧰</div> Tools & Services
-      </h3>
+      <h3>🧰 Tools & Services</h3>
       <p>
         Production tools, creator utilities, digital services
         and workflow solutions for professionals.
@@ -457,6 +135,18 @@
       <span class="hub-btn ghost">
         Planned Expansion
       </span>
+    </div>
+
+    <!-- Sellers -->
+    <div class="hub-card">
+      <h3>💼 Sell on VFXKart</h3>
+      <p>
+        Become a verified seller, upload digital products
+        and reach a focused creator-first audience.
+      </p>
+      <a href="{{ url_for('seller_root') }}" class="hub-btn">
+        Become a Seller
+      </a>
     </div>
 
   </div>
@@ -473,162 +163,5 @@
   </div>
 
 </section>
-
-<!-- THEME TOGGLE (Light/Dark) -->
-<div class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
-  🌓
-</div>
-
-<script>
-  function toggleTheme() {
-    document.body.classList.toggle('light-theme');
-    let isLight = document.body.classList.contains('light-theme');
-    localStorage.setItem('hubTheme', isLight ? 'light' : 'dark');
-  }
-  // Initialize on load
-  if (localStorage.getItem('hubTheme') === 'light') {
-    document.body.classList.add('light-theme');
-  }
-
-  /* --- PARTICLE ANIMATION --- */
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  let width = canvas.width = window.innerWidth;
-  let height = canvas.height = window.innerHeight;
-  let particlesArray = [];
-  let time = 0;
-
-  let mouse = {
-    x: null,
-    y: null,
-    radius: 160
-  }
-
-  window.addEventListener('mousemove', function (event) {
-    mouse.x = event.clientX;
-    mouse.y = event.clientY;
-  });
-
-  window.addEventListener('mouseout', function () {
-    mouse.x = undefined;
-    mouse.y = undefined;
-  });
-
-  window.addEventListener('resize', function () {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    initParticles();
-  });
-
-  class Particle {
-    constructor(x, y, size) {
-      this.baseX = x;
-      this.baseY = y;
-      this.x = x;
-      this.y = y;
-      this.size = size;
-      this.density = (Math.random() * 15) + 5;
-    }
-    draw() {
-      let isLight = document.body.classList.contains('light-theme');
-      ctx.fillStyle = isLight ? 'rgba(15, 23, 42, 0.4)' : 'rgba(255, 255, 255, 0.5)';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.closePath();
-      ctx.fill();
-    }
-    update() {
-      // Create ocean-like intersecting wave layers
-      let wave1 = Math.sin((this.baseX * 0.005) + (time * 0.02)) * 60;
-      let wave2 = Math.sin((this.baseX * 0.002) - (time * 0.01)) * 40;
-      let wave3 = Math.cos((this.baseY * 0.004) + (time * 0.02)) * 20;
-      let targetY = this.baseY + wave1 + wave2 + wave3;
-
-      // Mouse attraction logic
-      let dx = mouse.x - this.x;
-      let dy = mouse.y - this.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < mouse.radius && mouse.x !== null) {
-        let forceDirectionX = dx / distance;
-        let forceDirectionY = dy / distance;
-        let force = (mouse.radius - distance) / mouse.radius;
-
-        let directionX = forceDirectionX * force * this.density;
-        let directionY = forceDirectionY * force * this.density;
-
-        this.x += directionX * 0.15;
-        this.y += directionY * 0.15;
-      } else {
-        // Smoothly pull back to its natural mathematical position
-        if (this.x !== this.baseX) {
-          this.x -= (this.x - this.baseX) * 0.08;
-        }
-        if (this.y !== targetY) {
-          this.y -= (this.y - targetY) * 0.08;
-        }
-      }
-      this.draw();
-    }
-  }
-
-  function initParticles() {
-    particlesArray = [];
-    // Strict grid structure for clean wave mesh
-    let spacing = width < 768 ? 45 : 55;
-    let cols = Math.ceil(width / spacing);
-    let rows = Math.ceil(height / spacing);
-
-    for (let i = 0; i <= cols; i++) {
-      for (let j = 0; j <= rows; j++) {
-        // Slight organic offset
-        let x = i * spacing + (Math.random() * 12 - 6);
-        let y = j * spacing + (Math.random() * 12 - 6);
-        let size = (Math.random() * 1.5) + 0.8;
-        particlesArray.push(new Particle(x, y, size));
-      }
-    }
-  }
-
-  function connectParticles() {
-    let isLight = document.body.classList.contains('light-theme');
-    for (let a = 0; a < particlesArray.length; a++) {
-      for (let b = a; b < particlesArray.length; b++) {
-        let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
-          + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
-
-        let mdx = mouse.x ? mouse.x - particlesArray[a].x : 1000;
-        let mdy = mouse.y ? mouse.y - particlesArray[a].y : 1000;
-        let mDist = Math.sqrt(mdx * mdx + mdy * mdy);
-
-        // Increase structural reach
-        let threshold = mDist < 200 ? 11000 : 5500;
-
-        if (distance < threshold) {
-          let opacityValue = 1 - (distance / threshold);
-          ctx.strokeStyle = isLight ? `rgba(15, 23, 42, ${opacityValue * 0.15})` : `rgba(255, 255, 255, ${opacityValue * 0.2})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
-          ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
-          ctx.stroke();
-        }
-      }
-    }
-  }
-
-  function animateParticles() {
-    requestAnimationFrame(animateParticles);
-    ctx.clearRect(0, 0, width, height);
-    time += 1; // drive the wave
-    for (let i = 0; i < particlesArray.length; i++) {
-      particlesArray[i].update();
-    }
-    connectParticles();
-  }
-
-  initParticles();
-  animateParticles();
-</script>
 
 {% endblock %}

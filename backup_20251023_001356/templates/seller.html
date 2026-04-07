@@ -1,0 +1,43 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Become a Seller — VFXKart</title>
+  <style>
+    body{margin:0;background:#0b0710;color:#e6eef8;font-family:system-ui;padding:24px;}
+    a{color:#9aa4b2;text-decoration:none;}
+    input,textarea{display:block;width:100%;margin-top:10px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#e6eef8;}
+    .btn{margin-top:12px;background:linear-gradient(90deg,#8b5cf6,#06b6d4);border:none;padding:10px 16px;border-radius:10px;color:#07030a;font-weight:700;}
+    .flash{margin-top:10px;padding:10px;border-radius:8px;}
+    .flash.success{background:rgba(6,182,212,0.1);}
+    .flash.error{background:rgba(246,92,92,0.08);}
+  </style>
+</head>
+<body>
+  <a href="/">← Back</a>
+  <h1>Become a Seller</h1>
+  <p style="color:#9aa4b2;">Join the marketplace — verified brands only. Submit your request below.</p>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  {% if submitted %}
+    <p style="margin-top:10px;background:rgba(139,92,246,0.1);padding:10px;border-radius:8px;">
+      ✅ Thanks <strong>{{ name }}</strong> — we received your request for "{{ brand }}". We'll reach you at {{ email }}.
+    </p>
+  {% endif %}
+
+  <form method="POST">
+    <input name="name" placeholder="Your Name" required>
+    <input name="brand" placeholder="Brand / Category" required>
+    <input name="email" type="email" placeholder="Email" required>
+    <input name="phone" placeholder="Phone (optional)">
+    <textarea name="note" rows="3" placeholder="Additional notes (optional)"></textarea>
+    <button class="btn" type="submit">Submit</button>
+  </form>
+</body>
+</html>

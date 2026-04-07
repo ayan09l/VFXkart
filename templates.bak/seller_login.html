@@ -1,0 +1,14 @@
+﻿<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Seller Login — VFXKart</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head><body><div class="container">
+<header class="header"><div class="brand"><div class="logo">VK</div><div><div style="font-weight:700">VFXKart</div><div style="color:var(--muted);font-size:13px">Seller login</div></div></div><div class="actions"><a href="/">← Back</a></div></header>
+{% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+<div class="card" style="max-width:520px;margin:0 auto"><h2 style="margin:0 0 8px">Sign in to your Seller account</h2>
+<form method="post" style="margin-top:12px;display:flex;flex-direction:column;gap:12px">
+<input name="username" placeholder="Username or email" required>
+<input name="password" type="password" placeholder="Password" required>
+<div style="display:flex;gap:8px;align-items:center"><button class="btn" type="submit">Sign in</button><a class="btn ghost" href="/seller/register" style="text-decoration:none">Create account</a></div>
+</form><p class="note">If you don't have an account, click Create account. An admin will verify your seller profile before you appear in the public shop.</p></div></div></body></html>

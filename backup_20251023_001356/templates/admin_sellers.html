@@ -1,0 +1,57 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Sellers</title>
+  <style>
+    body{margin:0;background:#0b0710;color:#e6eef8;font-family:system-ui;padding:22px;}
+    a{color:#9aa4b2;text-decoration:none}
+    h1{margin:0 0 12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border:1px solid rgba(255,255,255,0.04);text-align:left}
+    th{background:#0e1220;color:#cfeaff}
+    tr:nth-child(even){background:rgba(255,255,255,0.01)}
+    .meta{color:#9aa4b2;margin-top:8px}
+    .back{display:inline-block;margin-bottom:10px;color:#9aa4b2}
+    .small{font-size:13px;color:#9aa4b2}
+    .container{max-width:1200px;margin:0 auto}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a class="back" href="/">← Back to site</a>
+    <h1>Seller Submissions</h1>
+    <div class="meta small">Total: {{ sellers|length }}</div>
+
+    {% if sellers %}
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Brand</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in sellers %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ s.name or s.get('name','') }}</td>
+              <td>{{ s.brand or s.get('brand','') }}</td>
+              <td><a href="mailto:{{ s.email }}">{{ s.email }}</a></td>
+              <td>{{ s.phone or s.get('phone','') }}</td>
+              <td style="max-width:320px;white-space:pre-wrap">{{ s.note or s.get('note','') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p class="small">No submissions yet.</p>
+    {% endif %}
+  </div>
+</body>
+</html>

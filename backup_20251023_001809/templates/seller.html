@@ -1,0 +1,14 @@
+﻿<!doctype html><html lang="en"><head><meta charset="utf-8"/><title>Become a Seller</title></head><body><a href="/">← Back</a><h1>Become a Seller</h1>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+<form method="POST">
+<input name="name" placeholder="Your Name" required>
+<input name="brand" placeholder="Brand / Category" required>
+<input name="email" type="email" placeholder="Email" required>
+<input name="phone" placeholder="Phone (optional)">
+<textarea name="note" rows="3" placeholder="Additional notes (optional)"></textarea>
+<button type="submit">Submit</button>
+</form></body></html>

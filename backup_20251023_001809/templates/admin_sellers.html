@@ -1,0 +1,11 @@
+﻿<!doctype html><html lang="en"><head><meta charset="utf-8"/><title>Admin Sellers</title></head><body><a href="/">← Back</a><h1>Seller Submissions</h1>
+{% if sellers %}
+  <table border="1" cellpadding="6"><thead><tr><th>#</th><th>Name</th><th>Brand</th><th>Email</th><th>Phone</th><th>Note</th></tr></thead><tbody>
+  {% for s in sellers %}
+    <tr><td>{{ loop.index }}</td><td>{{ s.name or s.get('name','') }}</td><td>{{ s.brand or s.get('brand','') }}</td><td>{{ s.email }}</td><td>{{ s.phone or s.get('phone','') }}</td><td>{{ s.note or s.get('note','') }}</td></tr>
+  {% endfor %}
+  </tbody></table>
+{% else %}
+  <p>No submissions</p>
+{% endif %}
+</body></html>

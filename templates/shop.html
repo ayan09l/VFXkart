@@ -1,635 +1,183 @@
-{% extends "_base.html" %}
+﻿{% extends "_base.html" %}
 {% block title %}Marketplace — VFXKart{% endblock %}
 
 {% block content %}
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+:root{
+  --bg-dark:#0b1220;
+  --card:#121b2e;
+  --border:rgba(255,255,255,0.08);
+  --accent:#38bdf8;
+}
 
-  /* ── PAGE BASE ── */
-  body { background: #080a0f !important; font-family: 'Inter', sans-serif !important; }
+.market-wrap{padding-top:10px}
 
-  /* ── FULL-PAGE BACKGROUND ── */
-  .sh-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: #080a0f;
-    overflow: hidden;
-  }
+.market-head{
+  text-align:center;
+  margin:18px 0 26px;
+}
+.market-head h1{
+  font-size:2.6rem;
+  font-weight:700;
+  margin:0;
+}
+.market-head p{
+  margin-top:10px;
+  color:#b6c2e2;
+  font-size:1.05rem;
+}
 
-  /* Subtle noise texture via SVG filter */
-  .sh-bg::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    background-size: 200px;
-    opacity: 0.5;
-    pointer-events: none;
-  }
+.filter-box{
+  max-width:960px;
+  margin:0 auto 30px;
+  padding:22px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  border-radius:14px;
+}
 
-  /* Very subtle vignette glow — just one, dark-red, top-right */
-  .sh-glow-1 {
-    position: absolute;
-    width: 900px; height: 700px;
-    background: radial-gradient(ellipse at center, rgba(200, 40, 40, 0.07) 0%, transparent 70%);
-    top: -200px; right: -200px;
-    pointer-events: none;
-  }
+.filter-input, .filter-select{
+  padding:12px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--border);
+  color:white;
+}
 
-  /* Cool faint green bottom-left */
-  .sh-glow-2 {
-    position: absolute;
-    width: 700px; height: 600px;
-    background: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
-    bottom: -200px; left: -150px;
-    pointer-events: none;
-  }
+.btn-main{
+  background:var(--accent);
+  color:#020617;
+  font-weight:700;
+  border:none;
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.btn-muted{
+  background:#1f2937;
+  color:#e5edff;
+  font-weight:600;
+  border-radius:10px;
+  padding:12px;
+  text-align:center;
+  text-decoration:none;
+}
 
-  /* Horizontal rule line across page top */
-  .sh-topline {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, rgba(232,57,57,0.6) 40%, rgba(16,185,129,0.5) 70%, transparent 100%);
-  }
-
-  /* Vertical grid lines (subtle) */
-  .sh-grid {
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-    background-size: 80px 80px;
-    mask-image: radial-gradient(ellipse 80% 60% at 60% 30%, rgba(0,0,0,0.5) 0%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse 80% 60% at 60% 30%, rgba(0,0,0,0.5) 0%, transparent 80%);
-  }
-
-  /* ── PAGE LAYOUT ── */
-  .sh-page {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 110px 40px 80px;
-  }
-
-  @media (max-width: 768px) {
-    .sh-page { padding: 110px 20px 60px; }
-  }
-
-  /* ── PAGE HEADER ── */
-  .sh-header {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    gap: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-    padding-bottom: 28px;
-  }
-
-  .sh-header-left {}
-
-  .sh-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  .sh-badge-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: #e83939;
-    box-shadow: 0 0 6px rgba(232,57,57,0.8);
-    animation: shPulse 2s ease-in-out infinite;
-  }
-
-  @keyframes shPulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.7); }
-  }
-
-  .sh-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 900;
-    color: #fff;
-    margin: 0;
-    letter-spacing: -1.5px;
-    line-height: 1.05;
-  }
-
-  .sh-title em {
-    font-style: normal;
-    background: linear-gradient(100deg, #e83939 0%, #f47272 50%, #e83939 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shineText 4s linear infinite;
-  }
-
-  @keyframes shineText {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-  }
-
-  .sh-description {
-    margin: 10px 0 0;
-    color: rgba(255,255,255,0.38);
-    font-size: 0.95rem;
-    font-weight: 400;
-  }
-
-  .sh-header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .sh-count-badge {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.5);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-weight: 600;
-  }
-
-  /* ── FILTER BAR ── */
-  .sh-filters {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-bottom: 32px;
-  }
-
-  .sh-input, .sh-select {
-    height: 42px;
-    padding: 0 16px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.88rem;
-    font-family: 'Inter', sans-serif;
-    transition: border-color 0.2s, background 0.2s;
-    min-width: 0;
-  }
-
-  .sh-input { flex: 1; min-width: 200px; }
-  .sh-select { min-width: 150px; }
-
-  .sh-input::placeholder { color: rgba(255,255,255,0.25); }
-
-  .sh-input:focus, .sh-select:focus {
-    outline: none;
-    border-color: rgba(232,57,57,0.5);
-    background: rgba(255,255,255,0.06);
-    box-shadow: 0 0 0 3px rgba(232,57,57,0.1);
-  }
-
-  .sh-select option { background: #0d111b; color: #fff; }
-
-  .sh-btn-apply {
-    height: 42px;
-    padding: 0 22px;
-    background: #e83939;
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.88rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    font-family: 'Inter', sans-serif;
-    white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(232,57,57,0.3);
-  }
-
-  .sh-btn-apply:hover {
-    background: #c91f1f;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(232,57,57,0.45);
-  }
-
-  .sh-btn-reset {
-    height: 42px;
-    padding: 0 18px;
-    background: transparent;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.88rem;
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    transition: 0.2s;
-    white-space: nowrap;
-  }
-
-  .sh-btn-reset:hover {
-    border-color: rgba(255,255,255,0.25);
-    color: #fff;
-    background: rgba(255,255,255,0.04);
-  }
-
-  /* ── RESULTS LABEL ── */
-  .sh-results-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .sh-results-label {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.35);
-    font-weight: 500;
-  }
-
-  .sh-results-label strong {
-    color: rgba(255,255,255,0.7);
-    font-weight: 700;
-  }
-
-  /* ── PRODUCT GRID ── */
-  .sh-grid-products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-    gap: 20px;
-  }
-
-  /* ── PRODUCT CARD ── */
-  .sh-card {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.3s cubic-bezier(0.2,0.8,0.2,1), border-color 0.3s, box-shadow 0.3s;
-    position: relative;
-  }
-
-  .sh-card:hover {
-    transform: translateY(-6px);
-    border-color: rgba(232,57,57,0.2);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(232,57,57,0.08);
-  }
-
-  /* Top accent line on hover */
-  .sh-card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #e83939, #10b981);
-    opacity: 0;
-    transition: opacity 0.3s;
-    border-radius: 16px 16px 0 0;
-  }
-
-  .sh-card:hover::after { opacity: 1; }
-
-  .sh-card-img {
-    width: 100%;
-    height: 210px;
-    object-fit: cover;
-    display: block;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .sh-card-placeholder {
-    width: 100%;
-    height: 210px;
-    background: rgba(255,255,255,0.02);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .sh-card-placeholder-icon {
-    width: 52px; height: 52px;
-    background: rgba(255,255,255,0.04);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-    border: 1px solid rgba(255,255,255,0.07);
-  }
-
-  .sh-card-placeholder-text {
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.2);
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  .sh-card-body {
-    padding: 20px 22px 22px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  /* Category tag */
-  .sh-card-tag {
-    display: inline-block;
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: rgba(16,185,129,0.9);
-    background: rgba(16,185,129,0.1);
-    border: 1px solid rgba(16,185,129,0.15);
-    border-radius: 4px;
-    padding: 3px 8px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .sh-card-title {
-    font-size: 1.02rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 6px;
-    letter-spacing: -0.2px;
-    line-height: 1.35;
-  }
-
-  .sh-card-seller {
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.35);
-    margin: 0 0 auto;
-    padding-bottom: 18px;
-  }
-
-  .sh-card-seller span {
-    color: rgba(255,255,255,0.55);
-    font-weight: 600;
-  }
-
-  .sh-card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 18px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .sh-card-price {
-    font-size: 1.45rem;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: -0.5px;
-    line-height: 1;
-  }
-
-  .sh-card-price-sub {
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.3);
-    font-weight: 400;
-    margin-top: 3px;
-  }
-
-  .sh-card-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 18px;
-    background: rgba(232,57,57,0.1);
-    color: #f47272;
-    border: 1px solid rgba(232,57,57,0.25);
-    border-radius: 8px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-decoration: none;
-    transition: all 0.25s;
-    white-space: nowrap;
-  }
-
-  .sh-card-btn:hover {
-    background: #e83939;
-    color: #fff;
-    border-color: #e83939;
-    box-shadow: 0 6px 18px rgba(232,57,57,0.35);
-    transform: translateY(-1px);
-  }
-
-  .sh-card-btn svg {
-    width: 14px; height: 14px;
-    transition: transform 0.2s;
-  }
-
-  .sh-card-btn:hover svg { transform: translateX(3px); }
-
-  /* ── EMPTY STATE ── */
-  .sh-empty {
-    text-align: center;
-    padding: 100px 20px;
-    grid-column: 1 / -1;
-  }
-
-  .sh-empty-icon {
-    width: 64px; height: 64px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    margin: 0 auto 20px;
-  }
-
-  .sh-empty h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: rgba(255,255,255,0.6);
-    margin: 0 0 8px;
-  }
-
-  .sh-empty p {
-    font-size: 0.88rem;
-    color: rgba(255,255,255,0.3);
-    margin: 0;
-  }
-
-  /* ── PAGINATION ── */
-  .sh-pagination {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 48px;
-    flex-wrap: wrap;
-  }
-
-  .sh-page-btn {
-    width: 38px; height: 38px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    font-size: 0.88rem;
-    font-weight: 600;
-    transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .sh-page-btn:hover {
-    background: rgba(255,255,255,0.07);
-    border-color: rgba(255,255,255,0.18);
-    color: #fff;
-  }
-
-  .sh-page-btn.active {
-    background: #e83939;
-    color: #fff;
-    border-color: #e83939;
-    box-shadow: 0 4px 14px rgba(232,57,57,0.4);
-    font-weight: 800;
-  }
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+}
+.card img{
+  width:100%;
+  height:180px;
+  object-fit:contain;
+  margin-bottom:12px;
+}
+.card h3{
+  font-size:16px;
+  font-weight:600;
+  margin:0 0 4px;
+}
+.card p{
+  font-size:13px;
+  color:#9db3da;
+  margin:0 0 10px;
+}
+.price{
+  font-size:20px;
+  font-weight:700;
+  color:#38bdf8;
+  margin-bottom:12px;
+}
+.card a{
+  margin-top:auto;
+  text-align:center;
+  padding:10px;
+  border-radius:8px;
+  background:#38bdf8;
+  color:#020617;
+  font-weight:700;
+  text-decoration:none;
+}
 </style>
 
-<!-- BACKGROUND -->
-<div class="sh-bg">
-  <div class="sh-topline"></div>
-  <div class="sh-grid"></div>
-  <div class="sh-glow-1"></div>
-  <div class="sh-glow-2"></div>
-</div>
-
-<div class="sh-page">
+<div class="market-wrap">
 
   <!-- HEADER -->
-  <div class="sh-header">
-    <div class="sh-header-left">
-      <div class="sh-badge">
-        <div class="sh-badge-dot"></div>
-        Digital Marketplace
-      </div>
-      <h1 class="sh-title">Browse <em>VFX Assets</em></h1>
-      <p class="sh-description">Premium motion packs, LUTs, presets & tools from verified creators.</p>
-    </div>
-    <div class="sh-header-right">
-      <div class="sh-count-badge">{{ total }} products available</div>
-    </div>
+  <div class="market-head">
+    <h1>Marketplace</h1>
+    <p>Verified digital products from creators and partners.</p>
   </div>
 
   <!-- FILTERS -->
-  <form method="get" action="{{ url_for('shop') }}">
-    <div class="sh-filters">
-      <input class="sh-input" type="text" name="q"
-        placeholder="Search products…" value="{{ query_args.q }}">
+  <div class="filter-box">
+    <form method="get" action="{{ url_for('shop') }}"
+      style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
 
-      <select name="seller" class="sh-select">
-        <option value="">All Sellers</option>
+      <input class="filter-input" type="text" name="q" placeholder="Search products"
+        value="{{ query_args.q }}">
+
+      <select name="seller" class="filter-select">
+        <option value="">All sellers</option>
         {% for s in sellers %}
           <option value="{{ s }}" {% if query_args.seller==s %}selected{% endif %}>{{ s }}</option>
         {% endfor %}
       </select>
 
-      <input class="sh-input" style="max-width:120px" type="number" step="0.01"
-        name="min_price" placeholder="Min ₹" value="{{ query_args.min_price }}">
+      <input class="filter-input" type="number" step="0.01" name="min_price"
+        placeholder="Min price" value="{{ query_args.min_price }}">
 
-      <input class="sh-input" style="max-width:120px" type="number" step="0.01"
-        name="max_price" placeholder="Max ₹" value="{{ query_args.max_price }}">
+      <input class="filter-input" type="number" step="0.01" name="max_price"
+        placeholder="Max price" value="{{ query_args.max_price }}">
 
-      <select name="sort" class="sh-select" style="min-width:140px">
-        <option value="newest" {% if query_args.sort=='newest' %}selected{% endif %}>Newest First</option>
-        <option value="price_asc" {% if query_args.sort=='price_asc' %}selected{% endif %}>Price: Low → High</option>
-        <option value="price_desc" {% if query_args.sort=='price_desc' %}selected{% endif %}>Price: High → Low</option>
+      <select name="sort" class="filter-select">
+        <option value="newest" {% if query_args.sort=='newest' %}selected{% endif %}>Newest</option>
+        <option value="price_asc" {% if query_args.sort=='price_asc' %}selected{% endif %}>Price ↑</option>
+        <option value="price_desc" {% if query_args.sort=='price_desc' %}selected{% endif %}>Price ↓</option>
       </select>
 
-      <button class="sh-btn-apply" type="submit">Apply Filters</button>
-      <a href="{{ url_for('shop') }}" class="sh-btn-reset">Clear</a>
-    </div>
-  </form>
-
-  <!-- RESULTS ROW -->
-  <div class="sh-results-row">
-    <div class="sh-results-label">
-      Showing <strong>{{ products|length }}</strong> of <strong>{{ total }}</strong> products
-    </div>
+      <button class="btn-main">Apply</button>
+      <a href="{{ url_for('shop') }}" class="btn-muted">Reset</a>
+    </form>
   </div>
 
-  <!-- PRODUCT GRID -->
-  <div class="sh-grid-products">
+  <!-- RESULTS -->
+  <p style="text-align:center;color:#9fb7d4;margin-bottom:18px;">
+    Showing {{ products|length }} of {{ total }} products
+  </p>
+
+  <!-- GRID -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px;">
     {% for product in products %}
-    <div class="sh-card">
-      {% if product.image %}
-        <img class="sh-card-img" src="{{ product.image }}" alt="{{ product.title }}">
-      {% else %}
-        <div class="sh-card-placeholder">
-          <div class="sh-card-placeholder-icon">📦</div>
-          <div class="sh-card-placeholder-text">No preview</div>
-        </div>
-      {% endif %}
+      <div class="card">
+        {% if product.image %}
+          <img src="{{ product.image }}">
+        {% else %}
+          <div style="height:180px;background:#0f172a;border-radius:8px;margin-bottom:12px;"></div>
+        {% endif %}
 
-      <div class="sh-card-body">
-        <div class="sh-card-tag">Asset</div>
-        <div class="sh-card-title">{{ product.title }}</div>
-        <div class="sh-card-seller">by <span>{{ product.seller }}</span></div>
+        <h3>{{ product.title }}</h3>
+        <p>Seller: {{ product.seller }}</p>
+        <div class="price">₹{{ product.price }}</div>
 
-        <div class="sh-card-footer">
-          <div>
-            <div class="sh-card-price">₹{{ product.price }}</div>
-            <div class="sh-card-price-sub">One-time purchase</div>
-          </div>
-          <a href="{{ url_for('product_detail', product_id=product.id) }}" class="sh-card-btn">
-            View
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 8h10M9 4l4 4-4 4"/>
-            </svg>
-          </a>
-        </div>
+        <a href="{{ url_for('product_detail', product_id=product.id) }}">
+          View product
+        </a>
       </div>
-    </div>
-    {% endfor %}
-
-    {% if products|length == 0 %}
-    <div class="sh-empty">
-      <div class="sh-empty-icon">🔍</div>
-      <h3>No products found</h3>
-      <p>Try adjusting your filters or search term.</p>
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- PAGINATION -->
-  {% if total_pages > 1 %}
-  <div class="sh-pagination">
-    {% for p in range(1, total_pages + 1) %}
-      <a href="{{ url_for('shop', q=query_args.q, seller=query_args.seller, min_price=query_args.min_price, max_price=query_args.max_price, sort=query_args.sort, page=p) }}"
-         class="sh-page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
     {% endfor %}
   </div>
+
+  {% if products|length == 0 %}
+    <p style="text-align:center;margin-top:40px;color:#8fa6cc;">
+      No products found.
+    </p>
   {% endif %}
 
-</div><!-- end sh-page -->
+</div>
 
 {% endblock %}
