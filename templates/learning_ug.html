@@ -105,17 +105,27 @@
 
   <div class="ug-grid">
 
+    <!-- 🐍 LEARN PYTHON (NEW) -->
+    <div class="ug-card" style="border-color: rgba(232,57,57,0.3); box-shadow: 0 0 20px rgba(232,57,57,0.1);">
+      <h3>🐍 Learn Python</h3>
+      <p>Complete Python course with 6 unique content layers — analogies, broken code challenges, real product examples, viva prep and more.</p>
+      <a href="{{ url_for('learning.python_landing') }}" class="ug-btn" style="background: linear-gradient(135deg, #e83939, #c02626);">Start Learning</a>
+    </div>
+
     <!-- ENGINEERING / TECH -->
     <div class="ug-card">
       <h3>🎓 B.Tech / B.E.</h3>
       <p>Engineering fundamentals, computing, electronics and core technical subjects.</p>
-      <span class="ug-btn ghost">Content Building</span>
+
+      <!-- ✅ FIXED LINE -->
+      <a href="{{ url_for('learning.course', course_id='btech') }}" class="ug-btn">Explore</a>
     </div>
 
     <div class="ug-card">
       <h3>💻 BCA</h3>
       <p>Computer applications, programming, databases and software fundamentals.</p>
-      <span class="ug-btn ghost">Content Building</span>
+
+      <a href="{{ url_for('learning.explore_default', course_id='bca') }}" class="ug-btn">Explore</a>
     </div>
 
     <div class="ug-card">

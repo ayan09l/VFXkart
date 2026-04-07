@@ -17,10 +17,20 @@ from email.message import EmailMessage
 
 from PIL import Image
 
+import dotenv
+dotenv.load_dotenv()
+
 from flask import (
     Flask, render_template, request, redirect, url_for, flash,
-    session, Response, abort, send_from_directory, make_response
+    session, Response, abort, send_from_directory, make_response, jsonify
 )
+from authlib.integrations.flask_client import OAuth
+
+import google.generativeai as genai
+import requests
+
+# For local testing with OAuth over HTTP
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
@@ -29,6 +39,17 @@ from flask_login import (
     login_required as login_required_user
 )
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+
+from extensions import db, login_manager
+from models import (
+    Seller, SellerUser, User, Product, ProductImage, 
+    Order, OrderItem, LoginCode, PublicLoginCode
+)
+from utils import (
+    allowed_file, make_unique_filename, create_thumbnail,
+    _parse_price_to_number, _price_to_float, _gen_otp, _send_otp_email,
+    ALLOWED_EXTENSIONS, MAX_CONTENT_BYTES, OTP_TTL_MINUTES, THUMB_SUFFIX
+)
 
 # ---------- Paths / config ----------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -52,112 +73,66 @@ if not os.path.exists(JSON_SELLERS):
         json.dump([], f, ensure_ascii=False, indent=2)
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-app.secret_key = os.environ.get("VFXKART_SECRET", "dev-secret-key")
-app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DB_PATH}"
+# Check multiple secret key names for flexibility
+app.secret_key = os.environ.get("VFXKART_SECRET") or os.environ.get("SECRET_KEY") or "super-secret-key"
+
+# Fix: Local/Cloud DB URI
+# On Render, DATABASE_URL is provided automatically by their Postgres service
+SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+if SQLALCHEMY_DATABASE_URI:
+    # Render uses postgres:// but SQLAlchemy requires postgresql://
+    if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+else:
+    # Use the root path db for local Windows sessions as confirmed earlier
+    SQLALCHEMY_DATABASE_URI = "sqlite:///vfx_fresh.db"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
-MAX_CONTENT_BYTES = 3 * 1024 * 1024  # 3MB
-
 # Email (OTP). If not set, OTP prints in console for dev.
-SMTP_HOST = os.environ.get("VFXKART_SMTP_HOST", "")
-SMTP_PORT = int(os.environ.get("VFXKART_SMTP_PORT", "587"))
-SMTP_USER = os.environ.get("VFXKART_SMTP_USER", "")
-SMTP_PASS = os.environ.get("VFXKART_SMTP_PASS", "")
-SMTP_FROM = os.environ.get("VFXKART_SMTP_FROM", "no-reply@vfxkart.local")
-OTP_TTL_MINUTES = 5
+app.config["SMTP_HOST"] = os.environ.get("VFXKART_SMTP_HOST", "")
+app.config["SMTP_PORT"] = int(os.environ.get("VFXKART_SMTP_PORT", "587"))
+app.config["SMTP_USER"] = os.environ.get("VFXKART_SMTP_USER", "")
+app.config["SMTP_PASS"] = os.environ.get("VFXKART_SMTP_PASS", "")
+app.config["SMTP_FROM"] = os.environ.get("VFXKART_SMTP_FROM", "no-reply@vfxkart.local")
 
-db = SQLAlchemy(app)
+from routes.learning import learning_bp
+app.register_blueprint(learning_bp)
 
-# ---------- Models ----------
-class Seller(db.Model):
-    __tablename__ = "seller"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(200))
-    brand = db.Column(db.String(200))
-    email = db.Column(db.String(200))
-    phone = db.Column(db.String(100))
-    note = db.Column(db.Text)
-    approved = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+from routes.internships import internship_bp
+app.register_blueprint(internship_bp)
 
-class SellerUser(db.Model):
-    __tablename__ = "seller_user"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(200), unique=True, nullable=False)
-    password_hash = db.Column(db.String(300), nullable=False)
-    seller_profile_id = db.Column(db.Integer, db.ForeignKey('seller.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    def check_password(self, raw): return check_password_hash(self.password_hash, raw)
+# ✅ THEN INIT
+db.init_app(app)
+login_manager.init_app(app)
 
-class User(db.Model, UserMixin):
-    __tablename__ = "user"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(200), unique=True, nullable=False)
-    password_hash = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    def set_password(self, raw): self.password_hash = generate_password_hash(raw)
-    def check_password(self, raw): return check_password_hash(self.password_hash, raw)
+# ✅ VFXKart JARVIS (Groq) Init
+GROQ_KEY = os.environ.get("GROQ_API_KEY", "").strip()
+if GROQ_KEY:
+    print("--- VFXKart JARVIS (Groq Llama 3) Online! 🤖 ---")
+else:
+    print("JARVIS Offline: No GROQ_API_KEY found")
 
-class Product(db.Model):
-    __tablename__ = "product"
-    id = db.Column(db.Integer, primary_key=True)
-    seller_id = db.Column(db.Integer, db.ForeignKey('seller_user.id'), nullable=False)
-    title = db.Column(db.String(250), nullable=False)
-    price = db.Column(db.String(80), nullable=True)
-    description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+# ---------- OAuth Init ----------
+oauth = OAuth(app)
+google = oauth.register(
+    name='google',
+    client_id=os.environ.get("GOOGLE_CLIENT_ID", "DUMMY_GOOGLE_ID"),
+    client_secret=os.environ.get("GOOGLE_CLIENT_SECRET", "DUMMY_GOOGLE_SECRET"),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
 
-class ProductImage(db.Model):
-    __tablename__ = "product_image"
-    id = db.Column(db.Integer, primary_key=True)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    filename = db.Column(db.String(300), nullable=False)
-    thumb = db.Column(db.String(300), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Order(db.Model):
-    __tablename__ = "order"
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    buyer_name = db.Column(db.String(200))
-    email = db.Column(db.String(200))
-    phone = db.Column(db.String(50))
-    address = db.Column(db.Text)
-    city = db.Column(db.String(120))
-    pincode = db.Column(db.String(20))
-    total_amount = db.Column(db.Float, default=0.0)
-    status = db.Column(db.String(40), default="paid")
-
-class OrderItem(db.Model):
-    __tablename__ = "order_item"
-    id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-    title = db.Column(db.String(250))
-    price_each = db.Column(db.Float, default=0.0)
-    qty = db.Column(db.Integer, default=1)
-
-class LoginCode(db.Model):  # seller OTP
-    __tablename__ = "login_code"
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('seller_user.id'), nullable=False)
-    code = db.Column(db.String(6), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    used = db.Column(db.Boolean, default=False)
-
-class PublicLoginCode(db.Model):  # user OTP
-    __tablename__ = "public_login_code"
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    code = db.Column(db.String(6), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    expires_at = db.Column(db.DateTime, nullable=False)
-    used = db.Column(db.Boolean, default=False)
+github = oauth.register(
+    name='github',
+    client_id=os.environ.get("GITHUB_CLIENT_ID", "DUMMY_GITHUB_ID"),
+    client_secret=os.environ.get("GITHUB_CLIENT_SECRET", "DUMMY_GITHUB_SECRET"),
+    access_token_url='https://github.com/login/oauth/access_token',
+    authorize_url='https://github.com/login/oauth/authorize',
+    api_base_url='https://api.github.com/',
+    client_kwargs={'scope': 'user:email'}
+)
 
 # ---------- Admin basics ----------
 ADMIN_USER = os.environ.get("VFXKART_ADMIN_USER", "admin")
@@ -187,9 +162,6 @@ def seller_login_required(fn):
     return wrapper
 
 # ---------- Login manager ----------
-login_manager = LoginManager(app)
-login_manager.login_view = "auth_login"
-login_manager.login_message_category = "error"
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -224,59 +196,43 @@ def import_json_to_db():
 
 with app.app_context():
     import_json_to_db()
+    # Seed internship programs on first run
+    from routes.internships import seed_intern_programs
+    seed_intern_programs()
 
-# ---------- Helpers ----------
-def allowed_file(filename: str) -> bool:
-    if not filename: return False
-    ext = filename.rsplit(".", 1)[-1].lower()
-    return ext in ALLOWED_EXTENSIONS
+# ---------- Stub Routes for Footer ----------
+@app.route('/partner')
+def partner(): return render_template("index.html")
 
-def make_unique_filename(original: str) -> str:
-    ext = original.rsplit(".", 1)[-1].lower() if "." in original else "jpg"
-    return f"{uuid.uuid4().hex}.{ext}"
+@app.route('/about')
+def about(): return render_template("index.html")
 
-def create_thumbnail(in_bytes: bytes, dest_path: str, size=(560, 360)):
-    try:
-        img = Image.open(BytesIO(in_bytes)).convert("RGB")
-        img.thumbnail(size, Image.LANCZOS)
-        img.save(dest_path, format="JPEG", quality=82)
-        return True
-    except Exception:
-        return False
+@app.route('/faq')
+def faq(): return render_template("index.html")
 
-def _parse_price_to_number(price_str):
-    if not price_str: return None
-    m = re.search(r"([0-9]+(?:[.,][0-9]+)?)", str(price_str))
-    if not m: return None
-    num = m.group(1).replace(",", "")
-    try: return float(num)
-    except Exception:
-        try: return float(num.replace(",", ""))
-        except Exception: return None
+@app.route('/contact')
+def contact(): return render_template("index.html")
 
-def _price_to_float(price_str):
-    n = _parse_price_to_number(price_str)
-    return float(n) if n is not None else 0.0
+@app.route('/privacy-policy')
+def privacy_policy(): return render_template("index.html")
 
-def get_by_id(model, ident):
-    return db.session.get(model, ident)
+@app.route('/terms-of-use')
+def terms_of_use(): return render_template("index.html")
 
-def _gen_otp(): return f"{random.randint(0, 999999):06d}"
+@app.route('/user-progress')
+def user_progress(): return "User Progress Page (Under Construction)"
 
-def _send_otp_email(to_email: str, code: str):
-    subject = "Your VFXKart login code"
-    body = f"Your one-time code is: {code}\nThis code expires in {OTP_TTL_MINUTES} minutes."
-    if SMTP_HOST and SMTP_USER and SMTP_PASS and SMTP_FROM:
-        try:
-            with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as s:
-                s.starttls(); s.login(SMTP_USER, SMTP_PASS)
-                msg = EmailMessage(); msg["Subject"]=subject; msg["From"]=SMTP_FROM; msg["To"]=to_email
-                msg.set_content(body); s.send_message(msg)
-            return True
-        except Exception as e:
-            print("[OTP EMAIL ERROR]", e); return False
-    else:
-        print(f"[DEV OTP] Send to {to_email}: {body}"); return True
+# ---------- Security Headers ----------
+@app.after_request
+def apply_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    # Ensure errors in production don't reveal server info
+    response.headers['Server'] = 'VFXKart-Secure-Server'
+    return response
 
 # ---------- Context: cart badge ----------
 @app.context_processor
@@ -304,24 +260,6 @@ def seller_root():
     if session.get("seller_id"):
         return redirect(url_for("seller_dashboard"))
     return redirect(url_for("seller_login"))
-@app.route("/learning")
-def learning():
-    return render_template("learning.html")
-@app.route("/learning/ug")
-def learning_ug():
-    return render_template("learning_ug.html")
-
-@app.route("/learning/pg")
-def learning_pg():
-    return render_template("learning_pg.html")
-
-@app.route("/learning/creators")
-def learning_creators():
-    return render_template("learning_creators.html")
-
-@app.route("/learning/ug/semester/<int:sem>")
-def learning_ug_semester(sem):
-    return render_template("learning_ug_semester.html", sem=sem)
 
 
 # ---------- Pages ----------
@@ -369,7 +307,7 @@ def shop():
     products = Product.query.order_by(Product.created_at.desc()).all()
     candidate = []
     for p in products:
-        seller = get_by_id(SellerUser, p.seller_id)
+        seller = db.session.get(SellerUser, p.seller_id)
         seller_name = seller.username if seller else "Unknown"
         img = ProductImage.query.filter_by(product_id=p.id).first()
         img_url = url_for('uploaded_file', filename=img.thumb) if img and img.thumb else None
@@ -417,7 +355,7 @@ def shop():
 @app.route("/product/<int:product_id>")
 def product_detail(product_id):
     p = db.session.get(Product, product_id) or abort(404)
-    seller = get_by_id(SellerUser, p.seller_id)
+    seller = db.session.get(SellerUser, p.seller_id)
     seller_name = seller.username if seller else "Unknown"
     images = ProductImage.query.filter_by(product_id=p.id).order_by(ProductImage.created_at.asc()).all()
     imgs = []
@@ -442,7 +380,7 @@ def auth_login():
         if u and u.check_password(password):
             login_user(u, remember=remember)
             flash("Welcome back!", "success")
-            next_url = request.args.get("next") or url_for("shop")
+            next_url = request.args.get("next") or url_for("hub")
             return redirect(next_url)
         flash("Invalid username/email or password.", "error")
         return redirect(url_for("auth_login"))
@@ -473,7 +411,7 @@ def auth_register():
 def auth_logout():
     logout_user()
     flash("Logged out.", "success")
-    return redirect(url_for("shop"))
+    return redirect(url_for("hub"))
 
 @app.route("/auth/forgot", methods=["GET","POST"])
 def auth_forgot():
@@ -516,7 +454,202 @@ def auth_reset(token):
         return redirect(url_for("auth_login"))
     return render_template("auth_reset.html", token=token)
 
-# OTP for users
+# ---------- OAuth Routes ----------
+@app.route('/login/<provider>')
+def oauth_login(provider):
+    if provider == 'google':
+        redirect_uri = url_for('oauth_authorize', provider='google', _external=True)
+        return google.authorize_redirect(redirect_uri)
+    elif provider == 'github':
+        redirect_uri = url_for('oauth_authorize', provider='github', _external=True)
+        return github.authorize_redirect(redirect_uri)
+    return redirect(url_for('auth_login'))
+
+@app.route('/auth/callback/<provider>')
+def oauth_authorize(provider):
+    try:
+        if provider == 'google':
+            token = google.authorize_access_token()
+            user_info = token.get('userinfo')
+            if not user_info:
+                user_info = google.parse_id_token(token)
+            email = user_info.get('email')
+            name = user_info.get('name') or email.split('@')[0]
+        elif provider == 'github':
+            token = github.authorize_access_token()
+            resp = github.get('user')
+            user_info = resp.json()
+            email = user_info.get('email')
+            if not email:
+                emails = github.get('user/emails').json()
+                for e in emails:
+                    if e.get('primary'):
+                        email = e.get('email')
+                        break
+            name = user_info.get('login') or email.split('@')[0]
+
+        if not email:
+            flash("Could not retrieve email from " + provider.title(), "error")
+            return redirect(url_for('auth_login'))
+
+        # Check if user exists
+        u = User.query.filter_by(email=email).first()
+        if not u:
+            # Check if username is taken, append random if so
+            u_check = User.query.filter_by(username=name).first()
+            if u_check:
+                name = f"{name}{random.randint(100,999)}"
+                
+            u = User(username=name, email=email)
+            u.set_password(str(uuid.uuid4())) 
+            db.session.add(u)
+            db.session.commit()
+            
+        login_user(u)
+        flash(f"Logged in successfully with {provider.title()}", "success")
+        return redirect(url_for('hub'))
+        
+    except Exception as e:
+        print("OAuth Error:", str(e))
+        flash(f"Failed to authenticate with {provider.title()}.", "error")
+        return redirect(url_for('auth_login'))
+
+
+# ---------- JARVIS AI API (Groq) ----------
+@app.route("/api/ai/chat", methods=["POST"])
+def api_ai_chat():
+    if not GROQ_KEY:
+        return jsonify({"error": "Jarvis is offline (Add GROQ_API_KEY)"}), 500
+    
+    user_msg = request.json.get("message", "").strip()
+    if not user_msg:
+        return jsonify({"error": "What's on your mind, sir?"}), 400
+
+    try:
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {GROQ_KEY}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {"role": "system", "content": "You are VFXKart Jarvis, a professional, lightning-fast AI assistant. You help with Python, VFX, and Creative Commerce. Be concise, elite, and supportive. If asked about the platform, speak highly of VFXKart.shop."},
+                {"role": "user", "content": user_msg}
+            ]
+        }
+        res = requests.post(url, headers=headers, json=data, timeout=10)
+        json_res = res.json()
+        reply = json_res['choices'][0]['message']['content']
+        return jsonify({"reply": reply})
+    except Exception as e:
+        print("Jarvis Error:", str(e))
+        return jsonify({"error": "Jarvis is recalibrating... try again"}), 500
+
+@app.route("/api/ai/hinglish", methods=["POST"])
+def api_ai_hinglish():
+    """Specialized AI endpoint for Hinglish Tutor with University Syllabus Grounding."""
+    if not GROQ_KEY:
+        return jsonify({"error": "AI Service Offline"}), 500
+    
+    user_msg = request.json.get("message", "").strip()
+    university = request.json.get("university", "General B.Tech").strip()
+    
+    if not user_msg:
+        return jsonify({"error": "Boliye, kya help karu?"}), 400
+
+    # --- GROUNDING LOGIC ---
+    # Try to load university-specific syllabus data
+    syllabus_knowledge = ""
+    uni_code = university.lower().split()[0] # e.g. "vtu", "mumbai"
+    
+    # Path to data: data/syllabi/vtu_cs.json
+    # For now we assume CS/General if university found
+    known_syllabi = {
+        "vtu": "vtu_cs.json",
+        "mumbai": "mumbai_cs.json",
+        "anna": "anna_cs.json",
+        "aku": "aku_cs.json",
+        "jntu": "jntu_cs.json"
+    }
+    
+    if uni_code in known_syllabi:
+        try:
+            s_path = os.path.join(app.root_path, "data", "syllabi", known_syllabi[uni_code])
+            if os.path.exists(s_path):
+                with open(s_path, 'r') as f:
+                    s_data = json.load(f)
+                    syllabus_knowledge = f"\n[SYLLABUS KNOWLEDGE FOR {university}]:\n{json.dumps(s_data)}\n"
+        except Exception as e:
+            print(f"Syllabus Grounding Error: {e}")
+
+    try:
+        url = "https://api.groq.com/openai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {GROQ_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        system_prompt = f"""
+        You are the VFXKart Hinglish AI Pro Tutor. You help Indian engineering students ace their exams.
+        Current University: {university}
+        {syllabus_knowledge}
+        
+        Rules for your response:
+        1. JSON FORMAT ONLY.
+        2. Field 'hinglish_reply': Conversational mix of Hindi/English. Use relatable Indian analogies. Voice-ready. Keep it warm and encouraging.
+        3. Field 'english_definition': Professional textbook-style definition. IF syllabus knowledge is provided above, use the EXACT terminology and mention the recommended textbooks from the knowledge base.
+        4. Field 'key_terms': Array of objects with 'word' and 'definition'. Highlight terms that are 'Common Viva Questions' or 'Important Topics' in the syllabus knowledge.
+        5. Field 'exam_tip': Actionable tip based on the 'viva_expert_tips' or 'common_10_mark_questions' in the syllabus knowledge for {university}.
+        6. Field 'textbooks': Array of recommended textbook names (strings) for this topic and university.
+        7. Field 'common_questions': Array of likely 10-mark exam questions (strings) for this topic.
+        
+        Topic:
+        """
+        
+        data = {
+            "model": "llama-3.3-70b-versatile",
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_msg}
+            ],
+            "response_format": {"type": "json_object"}
+        }
+        
+        res = requests.post(url, headers=headers, json=data, timeout=20)
+        raw_reply = res.json()['choices'][0]['message']['content']
+        structured_data = json.loads(raw_reply)
+        
+        # --- MERGE GROUNDING DATA ---
+        # If we have syllabus data, enrich the response with hard facts
+        if uni_code in known_syllabi:
+            try:
+                s_path = os.path.join(app.root_path, "data", "syllabi", known_syllabi[uni_code])
+                if os.path.exists(s_path):
+                    with open(s_path, 'r') as f:
+                        s_data = json.load(f)
+                    # Find the most relevant subject
+                    user_lower = user_msg.lower()
+                    for subj_name, subj_info in s_data.get("subjects", {}).items():
+                        # Check if the user's question relates to this subject
+                        subj_keywords = [w.lower() for w in subj_info.get("important_topics", [])]
+                        if any(kw in user_lower for kw in [subj_name.lower()] + subj_keywords):
+                            # Merge textbooks from syllabus (authoritative)
+                            if subj_info.get("textbooks"):
+                                structured_data["textbooks"] = subj_info["textbooks"]
+                            # Merge common questions from syllabus (authoritative)
+                            if subj_info.get("common_10_mark_questions"):
+                                structured_data["common_questions"] = subj_info["common_10_mark_questions"]
+                            break
+            except Exception:
+                pass
+        
+        return jsonify(structured_data)
+        
+    except Exception as e:
+        print("Hinglish Tutor Error:", str(e))
+        return jsonify({"error": "Tutor is taking a chai break... try again later."}), 500
+
 @app.route("/auth/login/request-otp", methods=["POST"])
 def auth_request_otp():
     user_or_email = (request.form.get("username") or "").strip()
@@ -697,7 +830,7 @@ def seller_verify_otp():
 @app.route("/seller/dashboard", methods=["GET","POST"])
 @seller_login_required
 def seller_dashboard():
-    user = get_by_id(SellerUser, session.get("seller_id"))
+    user = db.session.get(SellerUser, session.get("seller_id"))
     if not user:
         flash("Session invalid.", "error")
         return redirect(url_for("seller_login"))
@@ -751,7 +884,7 @@ def seller_dashboard():
 @app.route("/product/<int:product_id>/edit", methods=["GET","POST"])
 @seller_login_required
 def product_edit(product_id):
-    user = get_by_id(SellerUser, session.get("seller_id"))
+    user = db.session.get(SellerUser, session.get("seller_id"))
     p = db.session.get(Product, product_id) or abort(404)
     if p.seller_id != user.id:
         abort(403)
@@ -794,7 +927,7 @@ def product_edit(product_id):
 @app.route("/product/<int:product_id>/image/delete/<int:image_id>", methods=["POST"])
 @seller_login_required
 def product_image_delete(product_id, image_id):
-    user = get_by_id(SellerUser, session.get("seller_id"))
+    user = db.session.get(SellerUser, session.get("seller_id"))
     p = db.session.get(Product, product_id) or abort(404)
     if p.seller_id != user.id: abort(403)
     img = db.session.get(ProductImage, image_id) or abort(404)
@@ -813,7 +946,7 @@ def product_image_delete(product_id, image_id):
 @app.route("/seller/product/delete/<int:product_id>", methods=["POST"])
 @seller_login_required
 def seller_product_delete(product_id):
-    user = get_by_id(SellerUser, session.get("seller_id"))
+    user = db.session.get(SellerUser, session.get("seller_id"))
     p = db.session.get(Product, product_id) or abort(404)
     if p.seller_id != user.id: abort(403)
     imgs = ProductImage.query.filter_by(product_id=p.id).all()
@@ -862,7 +995,7 @@ def cart_add():
     try: pid = str(int(pid)); qty = max(int(qty), 1)
     except Exception:
         flash("Could not add to cart.", "error"); return redirect(request.referrer or url_for("shop"))
-    if not get_by_id(Product, int(pid)):
+    if not db.session.get(Product, int(pid)):
         flash("Product not found.", "error"); return redirect(request.referrer or url_for("shop"))
     cart = _get_cart(); cart[pid] = {"qty": cart.get(pid, {}).get("qty", 0) + qty}; _save_cart(cart)
     flash("Added to cart.", "success")
@@ -1007,7 +1140,93 @@ def seed_demo_route():
 def hub():
     return render_template("hub.html")
 
+# ---------- VFXKart AI Agent (Google Gemini — Trained on Platform Knowledge) ----------
+import requests as http_requests
+import time as _time
+
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+
+# Import VFXKart knowledge base
+from content.vfxkart_knowledge import VFXKART_AGENT_SYSTEM_PROMPT
+
+MAX_CHAT_HISTORY = 6  # Keep last N messages for context (safe for Flask cookie size)
+
+@app.route("/ask-ai", methods=["POST"])
+def ask_ai():
+    data = request.json
+    question = (data.get("question") or "").strip()
+
+    if not question:
+        return jsonify({"answer": "Please type a question!"})
+
+    if not GEMINI_API_KEY:
+        return jsonify({"answer": "AI is not configured yet. Please set the GEMINI_API_KEY environment variable."})
+
+    # Build conversation history from session
+    chat_history = session.get("chat_history", [])
+
+    # Build contents array with conversation memory
+    contents = []
+    for msg in chat_history[-MAX_CHAT_HISTORY:]:
+        contents.append({"role": msg["role"], "parts": [{"text": msg["text"]}]})
+    contents.append({"role": "user", "parts": [{"text": question}]})
+
+    MODELS = ["gemini-2.5-flash"]
+
+    for model_name in MODELS:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+
+            payload = {
+                "system_instruction": {
+                    "parts": [{"text": VFXKART_AGENT_SYSTEM_PROMPT}]
+                },
+                "contents": contents
+            }
+
+            resp = http_requests.post(url, json=payload, timeout=30)
+            result = resp.json()
+
+            if resp.status_code == 429:
+                print(f"[VFXKART AI] {model_name} rate limited, trying next model...")
+                _time.sleep(2)
+                continue
+
+            if "candidates" in result and result["candidates"]:
+                answer = result["candidates"][0]["content"]["parts"][0]["text"]
+
+                # Save to conversation history
+                chat_history.append({"role": "user", "text": question})
+                chat_history.append({"role": "model", "text": answer})
+                # Keep only last N entries
+                if len(chat_history) > MAX_CHAT_HISTORY * 2:
+                    chat_history = chat_history[-(MAX_CHAT_HISTORY * 2):]
+                session["chat_history"] = chat_history
+                session.modified = True
+
+                return jsonify({"answer": answer})
+            elif "error" in result:
+                err_msg = result["error"].get("message", "Unknown error")
+                print(f"[VFXKART AI ERROR] {model_name}: {err_msg}")
+                continue
+            else:
+                return jsonify({"answer": "No response from AI. Try again."})
+
+        except Exception as e:
+            print(f"[VFXKART AI ERROR] {model_name}: {e}")
+            continue
+
+    return jsonify({"answer": "The AI is busy right now. Please wait a moment and try again."})
+
+@app.route("/clear-chat", methods=["POST"])
+def clear_chat():
+    session.pop("chat_history", None)
+    return jsonify({"status": "ok"})
+
+@app.route("/studybot")
+def studybot():
+    return redirect(url_for('hub'))
 
 # ---------- Run ----------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

@@ -1,0 +1,5 @@
+﻿7aa4820 HEAD@{0}: commit: Fix: Rename conflicting app directory to app_old_factory
+931e7fd HEAD@{1}: filter-branch: rewrite
+2b2878b HEAD@{2}: commit (amend): Production ready: Jarvis AI, Internship ecosystem, Database fixes, Security hardened
+24d7bc2 HEAD@{3}: pull origin main --allow-unrelated-histories --no-rebase -X theirs: Merge made by the 'ort' strategy.
+ceaafb4 HEAD@{4}: commit (initial): Production ready: Jarvis AI, Internship ecosystem, Database fixes
