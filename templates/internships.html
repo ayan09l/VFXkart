@@ -1,0 +1,310 @@
+{% extends "_base.html" %}
+{% block title %}Internships | VFXKart{% endblock %}
+
+{% block content %}
+
+<style>
+/* ================= INTERNSHIPS PAGE ================= */
+
+.intern-page{
+  background:#f8fafc;
+  padding:46px;
+  border-radius:22px;
+  color:#020617;
+}
+
+/* GRID */
+.intern-layout{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  gap:36px;
+}
+
+/* ===== SIDEBAR ===== */
+.filter-panel{
+  background:white;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 12px 28px rgba(0,0,0,.05);
+  position:sticky;
+  top:120px;
+  height:fit-content;
+}
+
+.filter-panel h3{
+  font-size:1.25rem;
+  margin-bottom:16px;
+}
+
+.filter-group{
+  margin-bottom:18px;
+}
+
+.filter-group label{
+  font-size:.8rem;
+  font-weight:600;
+  color:#475569;
+  display:block;
+  margin-bottom:6px;
+}
+
+.filter-group input,
+.filter-group select{
+  width:100%;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid #e2e8f0;
+  font-size:.9rem;
+}
+
+.apply-filter{
+  width:100%;
+  padding:11px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+/* ===== HEADER ===== */
+.intern-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:28px;
+}
+
+.intern-head h1{
+  font-size:2.2rem;
+  font-weight:900;
+}
+
+.search-input{
+  width:360px;
+  padding:12px 18px;
+  border-radius:999px;
+  border:1px solid #e2e8f0;
+  font-size:.9rem;
+}
+
+/* FILTER ROW */
+.quick-filters{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:26px;
+}
+
+.quick-filters select{
+  padding:10px 14px;
+  border-radius:9px;
+  border:1px solid #e2e8f0;
+}
+
+/* ===== CARDS ===== */
+.intern-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:24px;
+}
+
+.intern-card{
+  background:white;
+  border-radius:18px;
+  padding:22px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+  transition:.3s;
+  display:flex;
+  flex-direction:column;
+}
+
+.intern-card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 20px 38px rgba(0,0,0,0.09);
+}
+
+.intern-card h3{
+  font-size:1.1rem;
+  font-weight:800;
+  margin-bottom:4px;
+}
+
+.company{
+  font-size:.9rem;
+  color:#475569;
+}
+
+.meta{
+  font-size:.82rem;
+  margin:10px 0;
+  color:#64748b;
+}
+
+.tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:12px;
+}
+
+.tag{
+  font-size:.7rem;
+  padding:4px 10px;
+  background:#e0e7ff;
+  color:#1e40af;
+  border-radius:999px;
+}
+
+.stipend{
+  font-weight:800;
+  color:#16a34a;
+  margin-bottom:14px;
+}
+
+.apply-btn{
+  margin-top:auto;
+  background:#2563eb;
+  color:white;
+  padding:10px;
+  text-align:center;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:700;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .intern-layout{grid-template-columns:1fr;}
+  .filter-panel{position:relative;}
+}
+
+</style>
+
+<div class="intern-page">
+
+  <div class="intern-layout">
+
+    <!-- ================= FILTER SIDEBAR ================= -->
+    <aside class="filter-panel">
+
+      <h3>Filter</h3>
+
+      <form method="get">
+
+        <div class="filter-group">
+          <label>Keyword</label>
+          <input type="text" name="q" placeholder="Marketing, Python…">
+        </div>
+
+        <div class="filter-group">
+          <label>Category</label>
+          <select name="field">
+            <option value="">All</option>
+            <option>Marketing</option>
+            <option>IT</option>
+            <option>VFX</option>
+            <option>Finance</option>
+            <option>Media</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Location</label>
+          <select name="location">
+            <option>India</option>
+            <option>Remote</option>
+            <option>Delhi</option>
+            <option>Mumbai</option>
+            <option>Bangalore</option>
+            <option>Pune</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Type</label>
+          <select name="type">
+            <option value="">Paid + Unpaid</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </div>
+
+        <button class="apply-filter">Apply</button>
+
+      </form>
+
+    </aside>
+
+    <!-- ================= LIST ================= -->
+    <section>
+
+      <div class="intern-head">
+        <h1>Internships in India 🇮🇳</h1>
+        <input class="search-input" placeholder="Search role or company…">
+      </div>
+
+      <div class="quick-filters">
+        <select><option>All Duration</option><option>3 Months</option><option>6 Months</option></select>
+        <select><option>All Levels</option><option>Beginner</option><option>Intermediate</option></select>
+      </div>
+
+      <!-- ================= CARDS ================= -->
+      <div class="intern-grid">
+
+        <!-- CARD -->
+        <div class="intern-card">
+          <h3>Digital Marketing Intern</h3>
+          <div class="company">Zomato</div>
+
+          <div class="meta">📍 Remote · ⏳ 3 Months</div>
+
+          <div class="tags">
+            <span class="tag">Marketing</span>
+            <span class="tag">Beginner</span>
+          </div>
+
+          <div class="stipend">₹8,000 / month</div>
+
+          <a class="apply-btn" href="#" target="_blank">Apply Now</a>
+        </div>
+
+        <div class="intern-card">
+          <h3>Python Developer Intern</h3>
+          <div class="company">Flipkart</div>
+          <div class="meta">📍 Bangalore · ⏳ 6 Months</div>
+
+          <div class="tags">
+            <span class="tag">IT</span>
+            <span class="tag">Intermediate</span>
+          </div>
+
+          <div class="stipend">₹15,000 / month</div>
+          <a class="apply-btn" href="#">Apply Now</a>
+        </div>
+
+        <div class="intern-card">
+          <h3>VFX Compositor Intern</h3>
+          <div class="company">Red Chillies VFX</div>
+
+          <div class="meta">📍 Mumbai · ⏳ 3 Months</div>
+
+          <div class="tags">
+            <span class="tag">VFX</span>
+            <span class="tag">Advanced</span>
+          </div>
+
+          <div class="stipend">₹12,000 / month</div>
+          <a class="apply-btn" href="#">Apply Now</a>
+        </div>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+{% endblock %}

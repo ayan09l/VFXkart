@@ -1,0 +1,226 @@
+{% extends "_base.html" %}
+{% block title %}Apply for {{ program.title }} — VFXKart{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+  /* ── OVERRIDE DARK BASE ── */
+  body { background: #F9F8F3 !important; font-family: 'Plus Jakarta Sans', sans-serif !important; color: #1A1A1A; }
+  .bg-glow, #thetaWave, footer.site-footer, .studybot-wrap { display: none !important; }
+  main.container { width: 100% !important; max-width: 100% !important; padding-top: 0 !important; margin: 0 !important; }
+  .nav-island { background: rgba(255,255,255,0.85) !important; border: 1px solid rgba(0,0,0,0.05) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important; }
+  .nav-link, .brand, .user-greeting { color: #333 !important; }
+  .brand span { color: #F97316 !important; }
+
+  /* ── APPLICATION LAYOUT ── */
+  .apply-page {
+    padding: 120px 20px 80px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .apply-header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+  .apply-header h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+  }
+  .apply-header p {
+    color: #6B7280;
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .form-card {
+    background: #fff;
+    border-radius: 32px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .form-group {
+    margin-bottom: 24px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 16px;
+    border: 1.5px solid #E5E7EB;
+    background: #F9FAFB;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #4F46E5;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #111;
+    margin: 40px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #F3F4F6;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .btn-submit {
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    background: #111;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+  }
+  .btn-submit:hover {
+    background: #4F46E5;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+  }
+
+  .info-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #EEF2FF;
+    color: #4F46E5;
+    padding: 14px 20px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 30px;
+  }
+
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+    .apply-page { padding-top: 100px; }
+  }
+</style>
+
+<div class="apply-page">
+  <div class="apply-header">
+    <h1>Apply for <span>{{ program.title }}</span></h1>
+    <p>Complete the form below to start your performance-based internship. We'll assign you a task upon review.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="info-bar">
+      <i class="fas fa-info-circle"></i>
+      <span>This is a direct-task internship. If shortlisted, you'll receive a project task via email.</span>
+    </div>
+
+    <form method="POST">
+      <div class="section-title">Personal Information</div>
+      <div class="form-group">
+        <label>Full Name *</label>
+        <input type="text" name="full_name" placeholder="John Doe" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" name="email" placeholder="john@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" name="phone" placeholder="+91 XXXX XXX XXX">
+        </div>
+      </div>
+
+      <div class="section-title">Academic Details</div>
+      <div class="form-group">
+        <label>College / University</label>
+        <input type="text" name="college" placeholder="IIT Bombay / Your College Name">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year of Study</label>
+          <select name="year_of_study">
+            <option value="1st">1st Year</option>
+            <option value="2nd">2nd Year</option>
+            <option value="3rd" selected>3rd Year</option>
+            <option value="4th">4th Year</option>
+            <option value="Graduate">Graduate</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Branch / Major</label>
+          <input type="text" name="branch" placeholder="CSE, MBA, ECE, etc.">
+        </div>
+      </div>
+
+      <div class="section-title">Links & Experience</div>
+      <div class="form-group">
+        <label>Technical Skills (comma separated)</label>
+        <input type="text" name="skills" placeholder="Python, Flask, JavaScript, React...">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>GitHub Profile / Project Link</label>
+          <input type="url" name="github_url" placeholder="https://github.com/your-username">
+        </div>
+        <div class="form-group">
+          <label>LinkedIn Profile</label>
+          <input type="url" name="linkedin_url" placeholder="https://linkedin.com/in/your-profile">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Portfolio Link (Alternative)</label>
+        <input type="url" name="portfolio_url" placeholder="https://yourportfolio.com">
+      </div>
+
+      <div class="section-title">Why You?</div>
+      <div class="form-group">
+        <label>Why do you want this performance-based internship? *</label>
+        <textarea name="why_apply" rows="4" placeholder="Tell us why you are a good fit and how you can handle direct tasks..." required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Briefly describe any past experience or major projects.</label>
+        <textarea name="experience" rows="3" placeholder="I built a web scraper for..., I designed a UI for..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Weekly Availability</label>
+        <select name="availability">
+          <option value="Full-time">Full-time (8 hours/day)</option>
+          <option value="Part-time" selected>Part-time (4-5 hours/day)</option>
+          <option value="Weekends">Weekends Only</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Submit Application & Request Task</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+.login-bg{
+    width:100%;
+    height:100vh;
+    background: radial-gradient(circle,#0e173b,#020617,#000);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.glass-card{
+    width:80%;
+    max-width:1150px;
+    height:520px;
+    border-radius:22px;
+    padding:32px;
+    display:flex;
+    gap:40px;
+
+    background: rgba(255,255,255,0.09);
+    border:1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(15px);
+}
+
+.left-login{
+    width:45%;
+    color:white;
+}
+
+.social-head .s-badge{
+    background:white;
+    color:black;
+    border-radius:50%;
+    padding:8px 14px;
+    margin-right:8px;
+    font-weight:700;
+}
+
+.login-title{
+    margin-top:10px;
+    font-size:28px;
+}
+
+.inbox{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:none;
+    margin-top:12px;
+    outline:none;
+}
+
+.remember{
+    font-size:14px;
+    margin-top:8px;
+}
+
+.login-btn{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+    margin-top:12px;
+    font-weight:700;
+    color:white;
+    background:linear-gradient(90deg,#5f2bff,#18d6ff);
+}
+
+.trusted{
+    margin-top:10px;
+    opacity:.8;
+}
+
+/* RIGHT SIDE */
+.right-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    width:50%;
+}
+
+.card{
+    background:white;
+    height:160px;
+    border-radius:18px;
+    padding:18px;
+}
+
+.learn{ background:#6c63ff; color:white; }
+.work{ background:#4d8cff; color:white; }
+.shop{ background:#dfe6ff; }

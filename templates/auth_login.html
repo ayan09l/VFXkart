@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — VFXKart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #fdf6f0; 
+      --card-bg: #ffffff;
+      --primary: #e83939; 
+      --text: #1a1a1a;
+      --text-muted: #718096;
+      --border: #f1f1f1;
+      --input-bg: #f9f9f9;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      background: var(--bg);
+      display: flex;
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .auth-card {
+      width: 440px; /* Precise fixed width for stability */
+      max-width: 100%;
+      background: var(--card-bg);
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+      animation: fadeInUp 0.4s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-banner {
+      width: 100%;
+      height: 140px;
+      background: #fafafa;
+      display: flex;
+      align-items: center; justify-content: center;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-banner img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .content-area {
+      padding: 1.8rem 2.2rem;
+      width: 100%;
+    }
+
+    .header-group {
+      text-align: center;
+      margin-bottom: 1.4rem;
+    }
+    .header-group h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+    .header-group p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Input Styling - FIXED OVERFLOW AND BLUE LINE */
+    .form-item { margin-bottom: 1.2rem; width: 100%; }
+    .form-item label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .input-box { 
+      position: relative; 
+      width: 100%; 
+    }
+    .input-box i {
+      position: absolute;
+      left: 1.1rem; top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8; font-size: 0.9rem;
+    }
+    .input-box input {
+      width: 100%; /* Strict width bound */
+      padding: 0.9rem 1rem 0.9rem 3rem;
+      background: var(--input-bg);
+      border: 1.5px solid #edf2f7;
+      border-radius: 1rem;
+      font-size: 0.95rem; font-family: inherit;
+      outline: none; transition: 0.2s;
+      display: block;
+    }
+
+    /* Fix blue/yellow autofill mess */
+    .input-box input:-webkit-autofill,
+    .input-box input:-webkit-autofill:hover, 
+    .input-box input:-webkit-autofill:focus {
+      background-color: var(--input-bg) !important;
+      -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    .input-box input:focus {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(232, 57, 57, 0.06);
+    }
+
+    .flex-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8rem; margin: 1.2rem 0;
+    }
+    .flex-meta a { color: var(--primary); font-weight: 700; text-decoration: none; }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 1rem;
+      font-size: 1rem; font-weight: 800;
+      cursor: pointer; transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(232, 57, 57, 0.25);
+    }
+    .submit-btn:hover { background: #d32f2f; transform: translateY(-1px); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 1.5rem 0; color: #cbd5e1;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 1px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1.5px; background: #f1f5f9; }
+
+    .google-btn {
+      width: 100%; padding: 0.9rem;
+      border: 1.5px solid #edf2f7;
+      border-radius: 1rem; background: #fff;
+      color: #1e293b; font-size: 0.95rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      text-decoration: none; transition: 0.2s;
+    }
+
+    .auth-footer {
+      text-align: center; margin-top: 1.8rem;
+      font-size: 0.9rem; color: var(--text-muted);
+    }
+    .auth-footer a { color: var(--primary); font-weight: 700; text-decoration: none; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; background: #fff; }
+      .auth-card { width: 100%; border-radius: 0; box-shadow: none; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <div class="hero-banner">
+      <img src="{{ url_for('static', filename='images/3d_coding_student_hero.png') }}" alt="Academy Core">
+    </div>
+
+    <div class="content-area">
+      <div class="header-group">
+        <h2>Welcome Back</h2>
+        <p>Access your research dashboard</p>
+      </div>
+
+      {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+          {% for m in msgs %}
+            <div style="background: #fff5f5; color: #e53e3e; padding: 10px; border-radius: 10px; margin-bottom: 20px; font-size: 0.85rem; border: 1px solid #feb2b2; text-align: center;">{{ m }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth_login') }}">
+        <div class="form-item">
+          <label>Identity</label>
+          <div class="input-box">
+            <i class="far fa-user"></i>
+            <input type="username" name="username" placeholder="Username / Email" required>
+          </div>
+        </div>
+
+        <div class="form-item">
+          <label>Security Key</label>
+          <div class="input-box">
+            <i class="fas fa-lock"></i>
+            <input type="password" name="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div class="flex-meta">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;"><input type="checkbox" name="remember" style="accent-color: var(--primary);"> Keep active</label>
+          <a href="{{ url_for('auth_forgot') }}">Forgot Pass?</a>
+        </div>
+
+        <button type="submit" class="submit-btn">Initialize Connection</button>
+      </form>
+
+      <div class="divider">Digital Auth</div>
+
+      <a href="{{ url_for('oauth_login', provider='google') }}" class="google-btn">
+        <img src="https://www.gstatic.com/images/branding/product/1x/googleg_48dp.png" width="18" alt="Google">
+        Google Authentication
+      </a>
+
+      <div class="auth-footer">
+        New investigator? <a href="{{ url_for('auth_register') }}">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

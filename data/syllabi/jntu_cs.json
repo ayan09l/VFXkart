@@ -1,0 +1,18 @@
+{
+  "university": "JNTU (Jawaharlal Nehru Technological University)",
+  "branch": "Computer Science/IT",
+  "subjects": {
+    "Data Structures": {
+      "textbooks": ["Data Structures and Algorithm Analysis in C by Mark Allen Weiss", "Fundamentals of Data Structures by Horowitz and Sahni"],
+      "important_topics": ["AVL Trees", "Hashing Techniques", "Priority Queues / Heaps", "Topological Sorting"],
+      "viva_expert_tips": ["JNTU examiners expect rotation diagrams for AVL tree insertions.", "Explain collision resolution techniques (Linear Probing, Chaining) clearly."],
+      "common_10_mark_questions": ["Explain AVL tree rotations (LL, RR, LR, RL) with examples.", "Discuss different Hashing techniques and collision resolution methods."]
+    },
+    "Computer Organization": {
+      "textbooks": ["Computer Organization by Carl Hamacher", "Computer Architecture by Morris Mano"],
+      "important_topics": ["Instruction Cycle", "Addressing Modes", "Pipeline Hazards", "Cache Memory Mapping"],
+      "viva_expert_tips": ["Draw the instruction cycle diagram clearly with all phases.", "Know the difference between direct, associative, and set-associative cache mapping."],
+      "common_10_mark_questions": ["Explain the instruction execution cycle with a neat diagram.", "Discuss different cache memory mapping techniques with examples."]
+    }
+  }
+}

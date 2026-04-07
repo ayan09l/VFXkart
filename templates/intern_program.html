@@ -1,0 +1,626 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — {{ program.title }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  body { background: #F9F8F3 !important; font-family: 'Plus Jakarta Sans', sans-serif !important; color: #1A1A1A; }
+  .bg-glow, #thetaWave, footer.site-footer, .studybot-wrap { display: none !important; }
+  main.container { width: 100% !important; max-width: 100% !important; padding-top: 0 !important; margin: 0 !important; }
+  .nav-island { background: rgba(255,255,255,0.85) !important; border: 1px solid rgba(0,0,0,0.05) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important; }
+  .nav-link, .brand, .user-greeting { color: #333 !important; }
+  .brand span { color: #F97316 !important; }
+
+  /* ── HERO ── */
+  .prog-hero { padding: 150px 0 60px; background: linear-gradient(180deg, #F9F8F3 0%, #EEF2FF 100%); }
+  .prog-hero-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 340px; gap: 50px; align-items: start; }
+  .prog-hero-left h1 { font-size: 2.6rem; font-weight: 900; letter-spacing: -1.5px; line-height: 1.15; margin-bottom: 14px; }
+  .tagline-text { font-size: 1.05rem; color: #6B7280; line-height: 1.7; margin-bottom: 24px; }
+  .hero-meta-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .hero-chip { display: flex; align-items: center; gap: 6px; background: #fff; padding: 8px 16px; border-radius: 12px; font-size: 0.82rem; font-weight: 700; color: #374151; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.04); }
+  .hero-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hero-skill { padding: 5px 12px; border-radius: 8px; font-size: 0.72rem; font-weight: 700; background: #EEF2FF; color: #4F46E5; }
+
+  /* ── ENROLL CARD ── */
+  .enroll-card { background: #fff; border-radius: 24px; padding: 32px; box-shadow: 0 12px 35px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04); position: sticky; top: 120px; }
+  .enroll-price { font-size: 2.8rem; font-weight: 900; color: #111; margin-bottom: 4px; }
+  .enroll-price span { font-size: 0.85rem; font-weight: 500; color: #9CA3AF; }
+  .enroll-subtitle { font-size: 0.8rem; color: #6B7280; margin-bottom: 24px; }
+  .btn-enroll-main { display: block; width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 1rem; font-weight: 800; color: #fff; cursor: pointer; text-align: center; transition: 0.2s; text-decoration: none; margin-bottom: 16px; }
+  .btn-enroll-main:hover { transform: scale(1.02); filter: brightness(1.1); }
+  .enroll-features { list-style: none; padding: 0; margin: 0; }
+  .enroll-features li { display: flex; align-items: center; gap: 10px; padding: 10px 0; font-size: 0.85rem; color: #374151; border-bottom: 1px solid rgba(0,0,0,0.04); }
+  .enroll-features li:last-child { border: none; }
+  .enroll-features li i { color: #059669; font-size: 0.8rem; }
+
+  /* ── CONTENT GRID ── */
+  .prog-content { max-width: 1100px; margin: 0 auto; padding: 50px 24px 80px; display: grid; grid-template-columns: 1fr 340px; gap: 50px; }
+  .tab-bar { display: flex; gap: 6px; margin-bottom: 35px; background: #fff; padding: 6px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); }
+  .tab-btn { flex: 1; padding: 12px 16px; border: none; border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; background: transparent; color: #6B7280; transition: 0.2s; font-family: inherit; }
+  .tab-btn.active { background: #4F46E5; color: #fff; box-shadow: 0 4px 12px rgba(79,70,229,0.25); }
+  .tab-btn:hover:not(.active) { background: #F3F4F6; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── WEEK + MODULE ── */
+  .week-section { margin-bottom: 35px; }
+  .week-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #9CA3AF; margin-bottom: 14px; padding-left: 4px; }
+  .module-card { background: #fff; border-radius: 18px; padding: 20px; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); cursor: pointer; transition: 0.2s; }
+  .module-card:hover { border-color: rgba(79,70,229,0.15); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+  .module-card.expanded { border-color: rgba(79,70,229,0.2); cursor: default; }
+  .module-top { display: flex; justify-content: space-between; align-items: center; }
+  .module-top h4 { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+  .module-top h4 i { color: #4F46E5; font-size: 1rem; }
+  .module-meta-row { display: flex; gap: 10px; align-items: center; }
+  .module-type-badge { font-size: 0.55rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .module-type-badge.concept { background: #EEF2FF; color: #4F46E5; }
+  .module-type-badge.code { background: #ECFDF5; color: #059669; }
+  .module-type-badge.practice { background: #FEF3C7; color: #92400E; }
+  .module-duration { font-size: 0.72rem; color: #9CA3AF; font-weight: 600; }
+  .module-desc { font-size: 0.82rem; color: #6B7280; margin-top: 8px; line-height: 1.55; }
+
+  /* ══════════════════════════════════════════════
+     AI ANIMATED VIDEO PLAYER
+     Auto-playing slides with voice narration,
+     typing code animations, and video controls.
+     100% proprietary — zero external content.
+     ══════════════════════════════════════════════ */
+  .ai-player-wrap {
+    margin-top: 20px; display: none;
+    border-top: 1px solid rgba(0,0,0,0.06); padding-top: 20px;
+  }
+  .module-card.expanded .ai-player-wrap { display: block; }
+
+  /* Player shell */
+  .ai-player {
+    background: #0f172a;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  }
+  /* Top bar */
+  .aip-topbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, #0f172a, #1e293b);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .aip-brand {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 1.5px;
+  }
+  .aip-brand i { color: #F97316; }
+  .aip-live {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.3);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .aip-live .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #10B981;
+    animation: livePulse 1.5s infinite;
+  }
+  @keyframes livePulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .aip-badge {
+    font-size: 0.58rem; font-weight: 700;
+    background: rgba(79,70,229,0.2); color: #a5b4fc;
+    padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* Slide viewport */
+  .aip-viewport {
+    position: relative;
+    min-height: 340px;
+    padding: 30px 32px;
+    color: #e2e8f0;
+    overflow: hidden;
+  }
+
+  /* Each slide */
+  .ai-slide {
+    display: none;
+    animation: slideIn 0.5s ease;
+  }
+  .ai-slide.active { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ai-slide h3 {
+    font-size: 1.25rem; font-weight: 800; color: #fff;
+    margin-bottom: 18px;
+  }
+  .ai-slide ul { padding-left: 0; margin: 0; list-style: none; }
+  .ai-slide ul li {
+    font-size: 0.88rem; color: #cbd5e1; line-height: 1.75;
+    margin-bottom: 8px; padding-left: 22px; position: relative;
+    opacity: 0; animation: fadeInLi 0.4s ease forwards;
+  }
+  .ai-slide.active ul li { opacity: 0; }
+  @keyframes fadeInLi { to { opacity: 1; } }
+  .ai-slide ul li::before {
+    content: '▸'; position: absolute; left: 0; color: #F97316; font-weight: 800;
+  }
+  .ai-slide ul li code {
+    background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.76rem; color: #a5b4fc;
+  }
+  .ai-slide ul li b { color: #fff; }
+
+  /* Code animation block */
+  .code-anim-block {
+    background: #000; border-radius: 12px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .code-anim-block .data-lang-label {
+    position: absolute; top: 8px; right: 12px;
+    font-size: 0.55rem; font-weight: 800; color: rgba(255,255,255,0.15);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .code-anim-block pre { margin: 0; background: transparent; }
+  .code-anim-block code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+    line-height: 1.7; color: #a5b4fc; background: transparent; padding: 0;
+    white-space: pre;
+  }
+  .typing-cursor {
+    display: inline-block; width: 8px; height: 16px;
+    background: #F97316; margin-left: 2px;
+    animation: cursorBlink 0.7s infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes cursorBlink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* Practice & tip cards inside player */
+  .practice-card {
+    background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.2);
+    border-radius: 12px; padding: 20px; margin-top: 10px;
+  }
+  .practice-card p { font-size: 0.88rem; color: #fed7aa; line-height: 1.65; margin: 0; }
+  .tip-card {
+    background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 12px; padding: 20px; margin-top: 10px;
+  }
+  .tip-card p { font-size: 0.88rem; color: #a7f3d0; line-height: 1.65; margin: 0; }
+
+  /* ── PLAYER CONTROLS BAR ── */
+  .aip-controls {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 20px;
+    background: #0f172a;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .aip-play-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #4F46E5; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.8rem; transition: 0.2s; flex-shrink: 0;
+  }
+  .aip-play-btn:hover { background: #4338CA; transform: scale(1.1); }
+  .aip-progress-bar {
+    flex: 1; height: 5px; background: rgba(255,255,255,0.08);
+    border-radius: 4px; cursor: pointer; position: relative; overflow: hidden;
+  }
+  .aip-progress-fill {
+    height: 100%; background: linear-gradient(90deg, #4F46E5, #7C3AED);
+    border-radius: 4px; transition: width 0.3s ease; width: 0%;
+  }
+  .aip-time {
+    font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.3);
+    white-space: nowrap; min-width: 90px; text-align: right;
+  }
+  .aip-vol-btn {
+    background: none; border: none; color: rgba(255,255,255,0.3);
+    cursor: pointer; font-size: 0.85rem; padding: 4px;
+  }
+  .aip-vol-btn:hover { color: #fff; }
+
+  /* Narration subtitle bar */
+  .aip-subtitle {
+    padding: 8px 20px;
+    background: rgba(0,0,0,0.4);
+    font-size: 0.72rem; color: rgba(255,255,255,0.5);
+    font-style: italic; text-align: center;
+    min-height: 30px;
+  }
+
+  /* ── BOTTOM ACTIONS ── */
+  .lesson-actions {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px;
+  }
+  .btn-ask-ai {
+    display: flex; align-items: center; gap: 8px; padding: 10px 18px;
+    border-radius: 12px; border: none; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; transition: 0.2s; font-family: inherit;
+    background: linear-gradient(135deg, #4F46E5, #7C3AED); color: #fff;
+    box-shadow: 0 4px 12px rgba(79,70,229,0.3); text-decoration: none;
+  }
+  .btn-ask-ai:hover { transform: scale(1.04); }
+  .btn-mark-complete {
+    display: flex; align-items: center; gap: 6px; padding: 10px 18px;
+    border-radius: 12px; border: 1px solid #D1D5DB; background: #fff;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer;
+    color: #374151; transition: 0.2s; font-family: inherit;
+  }
+  .btn-mark-complete:hover { background: #F0FDF4; border-color: #059669; color: #059669; }
+  .btn-mark-complete.done { background: #ECFDF5; border-color: #059669; color: #059669; }
+
+  /* ── TASKS ── */
+  .task-card { background: #fff; border-radius: 18px; padding: 24px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); }
+  .task-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .task-num { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; color: #fff; flex-shrink: 0; }
+  .task-badge { font-size: 0.62rem; font-weight: 800; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .task-badge.project { background: #FEF3C7; color: #92400E; }
+  .task-card h4 { font-size: 1rem; font-weight: 800; margin-bottom: 8px; }
+  .task-card .task-desc { font-size: 0.85rem; color: #6B7280; line-height: 1.6; margin-bottom: 14px; }
+  .task-requirements { background: #F8FAFC; padding: 14px 18px; border-radius: 12px; border: 1px dashed #CBD5E1; margin-bottom: 14px; }
+  .task-requirements h5 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #9CA3AF; margin-bottom: 6px; font-weight: 700; }
+  .task-requirements p { font-size: 0.82rem; color: #475569; line-height: 1.55; }
+  .task-meta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .task-meta-chip { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: #F3F4F6; color: #374151; display: flex; align-items: center; gap: 4px; }
+
+  /* ── CERT ── */
+  .cert-preview { background: #fff; border-radius: 20px; padding: 28px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04); }
+  .cert-preview .cert-icon { font-size: 3rem; margin-bottom: 14px; }
+  .cert-preview h4 { font-size: 1rem; font-weight: 800; margin-bottom: 6px; }
+  .cert-preview p { font-size: 0.82rem; color: #6B7280; line-height: 1.55; }
+  .cert-items { margin-top: 18px; text-align: left; display: flex; flex-direction: column; gap: 8px; }
+  .cert-items div { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: #374151; }
+  .cert-items div i { color: #059669; }
+
+  @media (max-width: 900px) {
+    .prog-hero-inner, .prog-content { grid-template-columns: 1fr; }
+    .enroll-card { position: static; }
+    .aip-viewport { padding: 20px 16px; min-height: 280px; }
+  }
+</style>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="prog-hero">
+  <div class="prog-hero-inner">
+    <div class="prog-hero-left">
+      <h1 style="color: {{ program.color }};"><i class="{{ program.icon }}" style="margin-right: 8px;"></i>{{ program.title }}</h1>
+      <p class="tagline-text">{{ program.description }}</p>
+      <div class="hero-meta-row">
+        <div class="hero-chip"><i class="fas fa-clock"></i> {{ program.duration_weeks }} Weeks</div>
+        <div class="hero-chip"><i class="fas fa-play-circle"></i> {{ program.modules|length }} AI Video Lessons</div>
+        <div class="hero-chip"><i class="fas fa-tasks"></i> {{ program.tasks|length }} Project Tasks</div>
+        <div class="hero-chip"><i class="fas fa-certificate"></i> Certificate + LoR</div>
+      </div>
+      <div class="hero-skills">
+        {% for skill in program.skills_covered.split(', ') %}
+        <span class="hero-skill">{{ skill }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="enroll-card">
+      <div class="enroll-price">₹{{ program.price }} <span>one-time</span></div>
+      <div class="enroll-subtitle">Full access • Lifetime • Certificate included</div>
+      <a href="#" class="btn-enroll-main" style="background: {{ program.color }};">Enroll Now <i class="fas fa-arrow-right" style="margin-left: 6px;"></i></a>
+      <ul class="enroll-features">
+        <li><i class="fas fa-check-circle"></i> {{ program.modules|length }} AI-powered video lessons</li>
+        <li><i class="fas fa-check-circle"></i> {{ program.tasks|length }} real-world project tasks</li>
+        <li><i class="fas fa-check-circle"></i> Hinglish AI Tutor — ask doubts 24/7</li>
+        <li><i class="fas fa-check-circle"></i> Verifiable completion certificate</li>
+        <li><i class="fas fa-check-circle"></i> Letter of Recommendation (LoR)</li>
+        <li><i class="fas fa-check-circle"></i> Add to LinkedIn profile</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ CONTENT ═══════ -->
+<div class="prog-content">
+  <div class="prog-main-col">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('training')"><i class="fas fa-play-circle"></i> Video Lessons</button>
+      <button class="tab-btn" onclick="switchTab('tasks')"><i class="fas fa-code"></i> Project Tasks</button>
+    </div>
+
+    <!-- TAB: VIDEO LESSONS -->
+    <div class="tab-panel active" id="tab-training">
+      {% if weeks %}
+        {% set ns = namespace(counter=0) %}
+        {% for week_num, modules in weeks|items %}
+        <div class="week-section">
+          <div class="week-label">Week {{ week_num }}</div>
+          {% for mod in modules %}
+          {% set ns.counter = ns.counter + 1 %}
+          <div class="module-card" onclick="toggleModule(this, {{ ns.counter }})">
+            <div class="module-top">
+              <h4><i class="fas fa-play-circle"></i> {{ mod.title }}</h4>
+              <div class="module-meta-row">
+                <span class="module-type-badge {{ mod.lesson_type }}">{{ mod.lesson_type }}</span>
+                <span class="module-duration"><i class="fas fa-clock"></i> {{ mod.duration_minutes }} min</span>
+              </div>
+            </div>
+            <div class="module-desc">{{ mod.description }}</div>
+
+            {% if mod.lesson_content %}
+            <div class="ai-player-wrap">
+              <div class="ai-player" data-module-id="{{ ns.counter }}" data-total="{{ program.modules|length }}" data-duration="{{ mod.duration_minutes }}">
+                <div class="aip-topbar">
+                  <div class="aip-brand"><i class="fas fa-graduation-cap"></i> VFXKart Learning</div>
+                  <div class="aip-live"><div class="dot"></div> AI Generated</div>
+                  <div class="aip-badge">Module {{ ns.counter }} / {{ program.modules|length }}</div>
+                </div>
+
+                <div class="aip-viewport">
+                  {{ mod.lesson_content | safe }}
+                </div>
+
+                <div class="aip-subtitle">Click play to start the AI lesson</div>
+
+                <div class="aip-controls">
+                  <button class="aip-play-btn" onclick="event.stopPropagation(); aiPlay(this);"><i class="fas fa-play"></i></button>
+                  <div class="aip-progress-bar" onclick="event.stopPropagation();"><div class="aip-progress-fill"></div></div>
+                  <div class="aip-time">Slide 1 / 4</div>
+                  <button class="aip-vol-btn" onclick="event.stopPropagation(); toggleVoice(this);"><i class="fas fa-volume-up"></i></button>
+                </div>
+              </div>
+
+              <div class="lesson-actions">
+                <a href="{{ url_for('learning.hinglish_tutor') }}" target="_blank" class="btn-ask-ai" onclick="event.stopPropagation();"><i class="fas fa-robot"></i> Ask Hinglish AI Tutor</a>
+                <button class="btn-mark-complete" onclick="event.stopPropagation(); markDone(this);"><i class="fas fa-check"></i> Mark Complete</button>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center; padding: 60px 20px; color: #9CA3AF;">
+          <i class="fas fa-play-circle" style="font-size: 3rem; margin-bottom: 16px; display: block;"></i>
+          <h3 style="font-weight: 700; color: #6B7280;">Video lessons coming soon!</h3>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- TAB: TASKS -->
+    <div class="tab-panel" id="tab-tasks">
+      {% if program.tasks %}
+        {% for task in program.tasks %}
+        <div class="task-card">
+          <div class="task-header">
+            <div class="task-num" style="background: {{ program.color }};">{{ task.order }}</div>
+            <span class="task-badge project"><i class="fas fa-star"></i> PROJECT TASK</span>
+          </div>
+          <h4>{{ task.title }}</h4>
+          <p class="task-desc">{{ task.description }}</p>
+          <div class="task-requirements"><h5>Submission Requirements</h5><p>{{ task.requirements }}</p></div>
+          <div class="task-meta">
+            <div class="task-meta-chip"><i class="fas fa-trophy"></i> {{ task.max_score }} points</div>
+            <div class="task-meta-chip"><i class="fas fa-calendar"></i> {{ task.deadline_days }} days deadline</div>
+            <div class="task-meta-chip">{% if task.submission_type == 'github_link' %}<i class="fab fa-github"></i> GitHub{% elif task.submission_type == 'url' %}<i class="fas fa-link"></i> Live URL{% else %}<i class="fas fa-upload"></i> Upload{% endif %}</div>
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div style="text-align:center; padding: 60px 20px; color: #9CA3AF;">
+          <h3 style="font-weight: 700; color: #6B7280;">Project tasks coming soon!</h3>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div>
+    <div class="cert-preview">
+      <div class="cert-icon">🏆</div>
+      <h4>What You'll Earn</h4>
+      <p>Complete all lessons and project tasks to unlock your credentials.</p>
+      <div class="cert-items">
+        <div><i class="fas fa-check-circle"></i> Internship Completion Certificate</div>
+        <div><i class="fas fa-check-circle"></i> Letter of Recommendation</div>
+        <div><i class="fas fa-check-circle"></i> Verified LinkedIn Badge</div>
+        <div><i class="fas fa-check-circle"></i> Portfolio-ready projects</div>
+        <div><i class="fas fa-check-circle"></i> Unique Verification ID</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══ AI ANIMATED VIDEO PLAYER ENGINE ═══ */
+/* Slides auto-advance AFTER the AI finishes speaking each slide */
+let voiceEnabled = true;
+let playerStates = {};  // { playerId: { playing, paused, currentSlide } }
+
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  event.target.closest('.tab-btn').classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function toggleModule(card, moduleId) {
+  const wasExpanded = card.classList.contains('expanded');
+  stopAllPlayers();
+  document.querySelectorAll('.module-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasExpanded) {
+    card.classList.add('expanded');
+    const player = card.querySelector('.ai-player');
+    if (player) initPlayer(player);
+  }
+}
+
+function initPlayer(player) {
+  const slides = player.querySelectorAll('.ai-slide');
+  const id = player.dataset.moduleId;
+  slides.forEach((s, i) => {
+    s.classList.remove('active');
+    if (i === 0) s.classList.add('active');
+  });
+  playerStates[id] = { playing: false, paused: false, currentSlide: 0 };
+  updatePlayerUI(player, 0, slides.length);
+  player.querySelector('.aip-subtitle').textContent = '▶ Click play to start the AI lesson';
+  player.querySelector('.aip-play-btn').innerHTML = '<i class="fas fa-play"></i>';
+}
+
+function aiPlay(btn) {
+  const player = btn.closest('.ai-player');
+  const slides = player.querySelectorAll('.ai-slide');
+  const id = player.dataset.moduleId;
+  let state = playerStates[id] || { playing: false, paused: false, currentSlide: 0 };
+
+  if (state.playing) {
+    // PAUSE
+    state.playing = false;
+    state.paused = true;
+    playerStates[id] = state;
+    speechSynthesis.cancel();
+    btn.innerHTML = '<i class="fas fa-play"></i>';
+    player.querySelector('.aip-subtitle').textContent = '⏸ Paused — click play to resume';
+    return;
+  }
+
+  // PLAY or RESUME
+  state.playing = true;
+  state.paused = false;
+  playerStates[id] = state;
+  btn.innerHTML = '<i class="fas fa-pause"></i>';
+
+  playSlide(player, slides, state.currentSlide);
+}
+
+function playSlide(player, slides, slideIdx) {
+  const id = player.dataset.moduleId;
+  const state = playerStates[id];
+  if (!state || !state.playing) return;
+
+  // Show slide
+  slides.forEach(s => s.classList.remove('active'));
+  slides[slideIdx].classList.add('active');
+  state.currentSlide = slideIdx;
+  playerStates[id] = state;
+  updatePlayerUI(player, slideIdx, slides.length);
+
+  const slide = slides[slideIdx];
+  const narration = slide.dataset.narration || '';
+  const subtitle = player.querySelector('.aip-subtitle');
+
+  // Animate list items (stagger)
+  const items = slide.querySelectorAll('li');
+  items.forEach((li, i) => {
+    li.style.opacity = '0';
+    li.style.animation = 'none';
+    setTimeout(() => {
+      li.style.animation = `fadeInLi 0.5s ease ${i * 0.4}s forwards`;
+    }, 50);
+  });
+
+  // Animate code block (typing effect)
+  const codeBlock = slide.querySelector('.code-anim-block code');
+  if (codeBlock && !codeBlock.dataset.animated) {
+    const fullCode = codeBlock.textContent;
+    codeBlock.textContent = '';
+    codeBlock.dataset.animated = '1';
+    let charIdx = 0;
+    const typeSpeed = Math.max(12, Math.min(35, 6000 / fullCode.length));
+    const typeInt = setInterval(() => {
+      if (charIdx < fullCode.length) {
+        codeBlock.textContent += fullCode[charIdx];
+        charIdx++;
+      } else {
+        clearInterval(typeInt);
+      }
+    }, typeSpeed);
+  }
+
+  // Speak narration & advance when done
+  if (voiceEnabled && narration) {
+    speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(narration);
+    utter.rate = 0.92;
+    utter.pitch = 1.02;
+    // Try getting a good voice
+    const voices = speechSynthesis.getVoices();
+    const googleEn = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en'));
+    const anyEn = voices.find(v => v.lang.startsWith('en'));
+    if (googleEn) utter.voice = googleEn;
+    else if (anyEn) utter.voice = anyEn;
+
+    // Show subtitle text as the AI speaks
+    subtitle.textContent = '🔊 ' + narration;
+
+    // When speech ends → advance to next slide or finish
+    utter.onend = () => {
+      const st = playerStates[id];
+      if (!st || !st.playing) return;
+      const next = slideIdx + 1;
+      if (next < slides.length) {
+        // Small pause between slides
+        setTimeout(() => playSlide(player, slides, next), 1200);
+      } else {
+        // Lesson complete
+        st.playing = false;
+        playerStates[id] = st;
+        player.querySelector('.aip-play-btn').innerHTML = '<i class="fas fa-redo"></i>';
+        subtitle.textContent = '✅ Lesson complete! Mark as done or click replay.';
+      }
+    };
+
+    speechSynthesis.speak(utter);
+  } else {
+    // No voice: show text and auto-advance after a delay
+    subtitle.textContent = narration || '';
+    setTimeout(() => {
+      const st = playerStates[id];
+      if (!st || !st.playing) return;
+      const next = slideIdx + 1;
+      if (next < slides.length) {
+        playSlide(player, slides, next);
+      } else {
+        st.playing = false;
+        playerStates[id] = st;
+        player.querySelector('.aip-play-btn').innerHTML = '<i class="fas fa-redo"></i>';
+        subtitle.textContent = '✅ Lesson complete!';
+      }
+    }, 6000);
+  }
+}
+
+function updatePlayerUI(player, current, total) {
+  const fill = player.querySelector('.aip-progress-fill');
+  const time = player.querySelector('.aip-time');
+  fill.style.width = ((current + 1) / total * 100) + '%';
+  time.textContent = `Slide ${current + 1} / ${total}`;
+}
+
+function stopAllPlayers() {
+  speechSynthesis.cancel();
+  Object.keys(playerStates).forEach(k => {
+    playerStates[k].playing = false;
+  });
+}
+
+function toggleVoice(btn) {
+  voiceEnabled = !voiceEnabled;
+  const icon = btn.querySelector('i');
+  if (voiceEnabled) {
+    icon.className = 'fas fa-volume-up';
+  } else {
+    icon.className = 'fas fa-volume-mute';
+    speechSynthesis.cancel();
+  }
+}
+
+function markDone(btn) {
+  btn.classList.toggle('done');
+  btn.innerHTML = btn.classList.contains('done')
+    ? '<i class="fas fa-check-circle"></i> Completed'
+    : '<i class="fas fa-check"></i> Mark Complete';
+}
+
+// Pre-load TTS voices
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+speechSynthesis.getVoices();
+</script>
+{% endblock %}

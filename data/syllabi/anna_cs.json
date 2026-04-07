@@ -1,0 +1,18 @@
+{
+  "university": "Anna University",
+  "branch": "Computer Science/IT",
+  "subjects": {
+    "Design and Analysis of Algorithms": {
+      "textbooks": ["Introduction to Algorithms by Thomas H. Cormen", "Fundamentals of Algorithms by Horowitz and Sahani"],
+      "important_topics": ["Knapsack Problem (0/1 and Greedy)", "Matrix Chain Multiplication", "N-Queens Problem", "Time and Space Complexity Analysis"],
+      "viva_expert_tips": ["Clearly explain the difference between 'Prim's' and 'Kruskal's' algorithms.", "Mention the 'Divide and Conquer' paradigm when talking about Merge/Quick Sort."],
+      "common_10_mark_questions": ["Explain 0/1 Knapsack problem using Dynamic Programming.", "Analyze the time complexity of Quick Sort (Best, Average, Worst case)."]
+    },
+    "Computer Networking": {
+      "textbooks": ["Computer Networking by Kurose and Ross", "Data Communications by Forouzan"],
+      "important_topics": ["OSI vs TCP/IP Layering", "TCP vs UDP Flow Control", "BGP and OSPF Protocols", "Error Detection (CRC and Hamming Code)"],
+      "viva_expert_tips": ["Know the exact port numbers for common protocols (HTTP-80, HTTPS-443, FTP-21).", "Explain how 'ARP' works with a local network IP example."],
+      "common_10_mark_questions": ["Discuss the functions and features of each layer in the ISO OSI Reference Model.", "Differentiate between TCP and UDP with header structures."]
+    }
+  }
+}

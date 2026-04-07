@@ -1,0 +1,18 @@
+{
+  "university": "AKU (Aryabhatta Knowledge University)",
+  "branch": "Computer Science/IT",
+  "subjects": {
+    "Data Structures": {
+      "textbooks": ["Data Structures Through C by Yashavant Kanetkar", "Data Structures using C by Reema Thareja"],
+      "important_topics": ["Array Operations", "Circular Queue", "Binary Search Tree", "Graph Representation"],
+      "viva_expert_tips": ["Always write the algorithm first, then the code.", "Draw clear pointer diagrams for linked list questions."],
+      "common_10_mark_questions": ["Write algorithms for insertion and deletion in a Binary Search Tree.", "Explain Circular Queue with implementation in C."]
+    },
+    "Object Oriented Programming": {
+      "textbooks": ["Object-Oriented Programming with C++ by Balagurusamy", "Let Us C++ by Yashavant Kanetkar"],
+      "important_topics": ["Inheritance Types", "Polymorphism", "Virtual Functions", "Operator Overloading"],
+      "viva_expert_tips": ["Explain the difference between compile-time and run-time polymorphism with examples.", "Always mention 'abstract class' when discussing pure virtual functions."],
+      "common_10_mark_questions": ["Explain all types of Inheritance with suitable C++ examples.", "Discuss Polymorphism with real-world analogies and code."]
+    }
+  }
+}

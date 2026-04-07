@@ -1,0 +1,432 @@
+{% extends "_base.html" %}
+{% block title %}Cart — VFXKart{% endblock %}
+{% block content %}
+
+<style>
+  .cart-page { padding: 20px 0 60px; }
+
+  .cart-header {
+    margin-bottom: 40px;
+  }
+
+  .cart-header h1 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 8px;
+    letter-spacing: -1px;
+  }
+
+  .cart-header p {
+    color: rgba(255,255,255,0.45);
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* ── Layout ── */
+  .cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 30px;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 900px) {
+    .cart-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── Cart Items ── */
+  .cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 16px 20px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .cart-item:hover {
+    border-color: rgba(232,57,57,0.18);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .cart-item-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: rgba(255,255,255,0.04);
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .cart-item-img-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .cart-item-details {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .cart-item-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
+    transition: color 0.2s;
+  }
+
+  .cart-item-title:hover { color: #f47272; }
+
+  .cart-item-price {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.4);
+  }
+
+  .cart-item-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .cart-item-qty label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+  }
+
+  .cart-item-qty input {
+    width: 60px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: center;
+    transition: border-color 0.2s;
+    -moz-appearance: textfield;
+  }
+
+  .cart-item-qty input:focus {
+    outline: none;
+    border-color: rgba(232,57,57,0.4);
+  }
+
+  .cart-item-subtotal {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    min-width: 90px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .cart-item-remove {
+    flex-shrink: 0;
+  }
+
+  .cart-item-remove button {
+    background: rgba(232,57,57,0.08);
+    border: 1px solid rgba(232,57,57,0.15);
+    color: #f47272;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .cart-item-remove button:hover {
+    background: rgba(232,57,57,0.2);
+    border-color: rgba(232,57,57,0.4);
+  }
+
+  /* ── Summary sidebar ── */
+  .cart-summary {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 20px;
+    padding: 28px 24px;
+    position: sticky;
+    top: 120px;
+  }
+
+  .cart-summary h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 20px;
+    letter-spacing: -0.3px;
+  }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.9rem;
+  }
+
+  .summary-row .label { color: rgba(255,255,255,0.45); }
+  .summary-row .value { color: #fff; font-weight: 700; }
+
+  .summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .summary-total .label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .summary-total .value {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .btn-checkout {
+    display: block;
+    text-align: center;
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #e83939, #c02626);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgba(232,57,57,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-checkout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(232,57,57,0.55);
+  }
+
+  .btn-update {
+    display: block;
+    text-align: center;
+    padding: 12px 24px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.7);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+
+  .btn-update:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: #fff;
+    background: rgba(255,255,255,0.07);
+  }
+
+  .btn-continue {
+    display: block;
+    text-align: center;
+    padding: 12px 24px;
+    border-radius: 999px;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+
+  .btn-continue:hover { color: #fff; }
+
+  /* ── Empty state ── */
+  .cart-empty {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
+  .cart-empty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.4;
+  }
+
+  .cart-empty h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.7);
+    margin: 0 0 12px;
+  }
+
+  .cart-empty p {
+    color: rgba(255,255,255,0.35);
+    margin: 0 0 30px;
+    font-size: 0.95rem;
+  }
+
+  .cart-empty .btn-shop {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #e83939, #c02626);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgba(232,57,57,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .cart-empty .btn-shop:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(232,57,57,0.55);
+  }
+
+  /* ── Trust ── */
+  .cart-trust {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    font-weight: 500;
+  }
+</style>
+
+<div class="cart-page">
+
+  <div class="cart-header">
+    <h1>Your Cart</h1>
+    {% if items %}
+      <p>{{ items|length }} item{{ 's' if items|length > 1 else '' }} in your cart</p>
+    {% endif %}
+  </div>
+
+  {% if not items %}
+    <div class="cart-empty">
+      <div class="cart-empty-icon">🛒</div>
+      <h2>Your cart is empty</h2>
+      <p>Browse our marketplace and find something amazing.</p>
+      <a class="btn-shop" href="{{ url_for('shop') }}">🛍️ Explore Marketplace</a>
+    </div>
+
+  {% else %}
+    <form method="post" action="{{ url_for('cart_update') }}">
+      <div class="cart-layout">
+
+        <!-- ITEMS -->
+        <div class="cart-items">
+          {% for it in items %}
+          <div class="cart-item">
+            {% if it.thumb %}
+              <img class="cart-item-img" src="{{ it.thumb }}" alt="{{ it.title }}">
+            {% else %}
+              <div class="cart-item-img-placeholder">📦</div>
+            {% endif %}
+
+            <div class="cart-item-details">
+              <a class="cart-item-title" href="{{ url_for('product_detail', product_id=it.id) }}">{{ it.title }}</a>
+              <div class="cart-item-price">₹{{ '%.2f'|format(it.price) }} each</div>
+            </div>
+
+            <div class="cart-item-qty">
+              <label>Qty</label>
+              <input type="number" min="0" name="qty_{{ it.id }}" value="{{ it.qty }}">
+            </div>
+
+            <div class="cart-item-subtotal">₹{{ '%.2f'|format(it.subtotal) }}</div>
+
+            <div class="cart-item-remove">
+              <button type="submit" formaction="{{ url_for('cart_remove') }}" name="product_id" value="{{ it.id }}">✕</button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+
+          {% for it in items %}
+          <div class="summary-row">
+            <span class="label">{{ it.title|truncate(22) }}</span>
+            <span class="value">₹{{ '%.2f'|format(it.subtotal) }}</span>
+          </div>
+          {% endfor %}
+
+          <div class="summary-total">
+            <span class="label">Total</span>
+            <span class="value">₹{{ '%.2f'|format(total) }}</span>
+          </div>
+
+          <div class="cart-actions">
+            <a href="{{ url_for('checkout') }}" class="btn-checkout">🛒 Proceed to Checkout</a>
+            <button type="submit" class="btn-update">Update Cart</button>
+            <a href="{{ url_for('shop') }}" class="btn-continue">← Continue Shopping</a>
+          </div>
+
+          <div class="cart-trust">
+            <div class="trust-item">🔒 Secure Checkout</div>
+            <div class="trust-item">⚡ Instant Delivery</div>
+            <div class="trust-item">✓ Verified Sellers</div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  {% endif %}
+
+</div>
+
+{% endblock %}

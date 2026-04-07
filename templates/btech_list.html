@@ -1,0 +1,164 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — B.Tech / B.E Programs Worldwide{% endblock %}
+
+{% block content %}
+
+<style>
+  .btech-wrap {
+    padding: 40px 0 60px;
+  }
+  .btech-title {
+    font-size: 2.6rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    max-width: 820px;
+  }
+  .btech-sub {
+    color: #aab7dd;
+    max-width: 820px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin-bottom: 46px;
+  }
+  .btech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .btech-card {
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 18px;
+    padding: 26px;
+    transition: 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btech-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 18px rgba(56, 189, 248, 0.35), 0 0 50px rgba(168, 85, 247, 0.25);
+  }
+  .btech-card h3 {
+    margin: 0 0 10px;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+  .btech-card p {
+    margin: 0 0 18px;
+    color: #9db3da;
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  .btech-btn {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-decoration: none;
+    background: #22d3ee;
+    color: #020617;
+    font-size: 0.9rem;
+  }
+  .btech-note {
+    margin-top: 60px;
+    padding: 28px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    color: #aab7dd;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+</style>
+
+<section class="btech-wrap">
+  <h1 class="btech-title">B.Tech / B.E Programs — Worldwide</h1>
+  <p class="btech-sub">
+    Explore all major B.Tech/B.E branches offered globally across universities (MIT, Stanford, IITs, NUS, etc.).
+    Core curriculum + specialized subjects for each engineering discipline.
+  </p>
+
+  <div class="btech-grid">
+
+    <div class="btech-card">
+      <h3>💻 Computer Science Engineering</h3>
+      <p>Algorithms, AI, Software Eng, Data Science, Cybersecurity (MIT, Stanford, IIT)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_cs') }}" class="btech-btn">Explore CSE</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🌐 Information Technology</h3>
+      <p>Networking, Cloud Computing, Web Tech, IT Management (NUS, BITS)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_it') }}" class="btech-btn">Explore IT</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>📡 Electronics & Communication Eng</h3>
+      <p>Digital Systems, VLSI, Embedded, IoT, Signal Processing (IIT, UC Berkeley)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_ece') }}" class="btech-btn">Explore ECE</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>⚡ Electrical & Electronics Eng</h3>
+      <p>Power Systems, Control Systems, Machines, Renewables (ETH Zurich, IIT)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_eee') }}" class="btech-btn">Explore EEE</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🔧 Mechanical Engineering</h3>
+      <p>Thermodynamics, Robotics, CAD/CAM, Manufacturing (MIT, Imperial)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_me') }}" class="btech-btn">Explore Mech</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🏗️ Civil Engineering</h3>
+      <p>Structures, Geotech, Transportation, Water Resources (UC Berkeley, IIT)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_ce') }}" class="btech-btn">Explore Civil</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🧪 Chemical Engineering</h3>
+      <p>Process Design, Thermodynamics, Materials, Biotech (Stanford, IITB)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_chem') }}" class="btech-btn">Explore Chem</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>✈️ Aeronautical / Aerospace Eng</h3>
+      <p>Aerodynamics, Propulsion, Avionics, Space Tech (Caltech, ISRO)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_aero') }}" class="btech-btn">Explore Aero</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🏥 Biomedical Engineering</h3>
+      <p>Biomechanics, Medical Imaging, Tissue Eng, Prosthetics (Johns Hopkins)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_bme') }}" class="btech-btn">Explore BME</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>♻️ Environmental Engineering</h3>
+      <p>Pollution Control, Waste Mgmt, Sustainability, Hydrology</p>
+      <a href="{{ url_for('learning.course', course_id='btech_env') }}" class="btech-btn">Explore Env</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🤖 Mechatronics & Robotics</h3>
+      <p>Automation, Sensors, Control Systems, AI Robotics (CMU)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_mechat') }}" class="btech-btn">Explore Mechatronics</a>
+    </div>
+
+    <div class="btech-card">
+      <h3>🔬 Engineering Physics</h3>
+      <p>Quantum, Optics, Materials Science, Nanotechnology (IISc)</p>
+      <a href="{{ url_for('learning.course', course_id='btech_phy') }}" class="btech-btn">Explore Eng Physics</a>
+    </div>
+
+  </div>
+
+  <div class="btech-note">
+    <strong>Worldwide Coverage:</strong> Subjects aligned with top universities globally.<br>
+    Content structured: Branch → Subjects → Topics → Detailed lessons.<br>
+    Expanding progressively.
+  </div>
+</section>
+
+{% endblock %}

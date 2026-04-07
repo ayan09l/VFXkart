@@ -1,0 +1,159 @@
+{% extends "_base.html" %}
+{% block title %}{{ original_topic }} - {{ course.name }} | VFXKart{% endblock %}
+
+{% block content %}
+<style>
+/* W3Schools style layout */
+body { margin: 0; padding: 0; }
+.explorer-container {
+    display: flex;
+    min-height: calc(100vh - 80px); /* Adjust based on your header height */
+    width: 100%;
+}
+
+/* SIDEBAR */
+.explorer-sidebar {
+    width: 250px;
+    background: #0f172a; /* Match existing dark theme */
+    border-right: 1px solid rgba(148,163,184,0.2);
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+    padding: 20px 0;
+    height: calc(100vh - 80px);
+}
+
+.explorer-sidebar h4 {
+    margin: 15px 20px 8px;
+    font-size: 1.1rem;
+    color: #e5edff;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.explorer-sidebar a {
+    display: block;
+    padding: 8px 20px;
+    text-decoration: none;
+    color: #aab7dd;
+    font-size: 0.95rem;
+    transition: 0.2s;
+}
+
+.explorer-sidebar a:hover {
+    background: rgba(56,189,248,0.15);
+    color: #fff;
+}
+
+.explorer-sidebar a.active {
+    background: #22d3ee;
+    color: #020617;
+    font-weight: 600;
+}
+
+/* MAIN CONTENT */
+.explorer-main {
+    flex: 1;
+    padding: 40px;
+    background: #020617;
+    color: #e5edff;
+    overflow-y: auto;
+}
+
+.explorer-main h1 {
+    font-size: 2.2rem;
+    margin-bottom: 25px;
+}
+
+.explorer-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 50px;
+}
+
+.explorer-content pre {
+    background: #0f172a;
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 16px;
+    border-radius: 8px;
+    color: #22d3ee;
+    overflow-x: auto;
+    font-size: 0.95rem;
+    margin: 20px 0;
+}
+
+/* NAVIGATION BUTTONS */
+.explorer-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 50px;
+    border-top: 1px solid rgba(148,163,184,0.2);
+    padding-top: 25px;
+}
+
+.nav-btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    background: #22d3ee;
+    color: #020617;
+    transition: 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: #0ea5e9;
+    transform: translateY(-2px);
+}
+
+.nav-btn.disabled {
+    background: rgba(148,163,184,0.2);
+    color: #64748b;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .explorer-container { flex-direction: column; }
+    .explorer-sidebar { width: 100%; height: auto; position: static; }
+}
+</style>
+
+<div class="explorer-container">
+    <!-- LEFT SIDEBAR -->
+    <div class="explorer-sidebar">
+        {% for subject, topics in course.subjects.items() %}
+            <h4>{{ subject|upper }}</h4>
+            {% for t in topics %}
+                {% set t_formatted = t|replace(' ', '_')|lower %}
+                <a href="{{ url_for('learning.explore_topic', course_id=course_id, subject_name=subject, topic_name=t_formatted) }}"
+                   class="{% if current_subject == subject and current_topic_formatted == t_formatted %}active{% endif %}">
+                    {{ t }}
+                </a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="explorer-main">
+        <h1>{{ original_topic }}</h1>
+        <div class="explorer-content">
+            {{ content|safe }}
+        </div>
+
+        <div class="explorer-nav">
+            {% if prev_topic %}
+                <a href="{{ url_for('learning.explore_topic', course_id=course_id, subject_name=prev_topic.subject, topic_name=prev_topic.formatted) }}" class="nav-btn">&laquo; Previous</a>
+            {% else %}
+                <a href="#" class="nav-btn disabled">&laquo; Previous</a>
+            {% endif %}
+
+            {% if next_topic %}
+                <a href="{{ url_for('learning.explore_topic', course_id=course_id, subject_name=next_topic.subject, topic_name=next_topic.formatted) }}" class="nav-btn">Next &raquo;</a>
+            {% else %}
+                <a href="#" class="nav-btn disabled">Next &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

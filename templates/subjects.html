@@ -1,0 +1,23 @@
+{% extends "_base.html" %}
+{% block title %}{{ course_name }} - Subjects{% endblock %}
+
+{% block content %}
+<div style="padding: 40px; max-width: 800px; margin: auto;">
+  <h1>{{ course_name }}</h1>
+  <p>Core subjects for this program.</p>
+  
+  {% for subject_key, topics in subjects.items() %}
+  <div style="background: rgba(15,23,42,0.5); margin: 20px 0; padding: 20px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.3);">
+    <h3>{{ subject_key.replace('_', ' ').title() }}</h3>
+    <ul>
+      {% for topic in topics %}
+      <li><a href="{{ url_for('learning.subject', course_id=course_id, subject_name=subject_key) }}">{{ topic }}</a></li>
+      {% endfor %}
+    </ul>
+    <a href="{{ url_for('learning.explore_default', course_id=course_id) }}" style="display: inline-block; padding: 8px 16px; background: #22d3ee; color: #020617; border-radius: 6px; text-decoration: none;">W3Schools Style Explorer</a>
+  </div>
+  {% endfor %}
+  
+  <a href="{{ url_for('learning.btech_list') }}">← Back to B.Tech Branches</a>
+</div>
+{% endblock %}

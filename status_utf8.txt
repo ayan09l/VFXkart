@@ -1,0 +1,113 @@
+﻿On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   .env.example
+	new file:   TODO.md
+	new file:   __pycache__/app.cpython-313.pyc
+	new file:   __pycache__/extensions.cpython-313.pyc
+	new file:   __pycache__/models.cpython-313.pyc
+	new file:   app.py
+	new file:   app/__init__.py
+	new file:   app/__pycache__/__init__.cpython-313.pyc
+	new file:   data/sellers.json
+	new file:   extensions.py
+	new file:   instance/vfxkart.db
+	new file:   models.py
+	new file:   requirements.txt
+	new file:   routes/__pycache__/internships.cpython-311.pyc
+	new file:   routes/__pycache__/learning.cpython-311.pyc
+	new file:   routes/__pycache__/learning.cpython-313.pyc
+	new file:   routes/admin.py
+	new file:   routes/auth.py
+	new file:   routes/internships.py
+	new file:   routes/learning.py
+	new file:   routes/shop.py
+	new file:   static/css/index.css
+	new file:   static/css/login_new.css
+	new file:   static/css/site.css
+	new file:   static/js/site.js
+	new file:   templates/_auth_shared.html
+	new file:   templates/_base.html
+	new file:   templates/admin_login.html
+	new file:   templates/admin_sellers.html
+	new file:   templates/auth_login.html
+	new file:   templates/auth_register.html
+	new file:   templates/cart.html
+	new file:   templates/checkout.html
+	new file:   templates/course_explorer.html
+	new file:   templates/hub.html
+	new file:   templates/index.html
+	new file:   templates/internships.html
+	new file:   templates/learning.html
+	new file:   templates/learning_creators.html
+	new file:   templates/learning_pg.html
+	new file:   templates/learning_ug.html
+	new file:   templates/order_success.html
+	new file:   templates/product_detail.html
+	new file:   templates/product_edit.htmL
+	new file:   templates/seller.html
+	new file:   templates/seller_dashboard.html
+	new file:   templates/seller_dashboard.html.bak
+	new file:   templates/seller_login.html
+	new file:   templates/shop.html
+	new file:   templates/subjects.html
+	new file:   templates/topic.html
+	new file:   templates/topics.html
+	new file:   wsgi.py
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   TODO.md
+	modified:   __pycache__/app.cpython-313.pyc
+	modified:   __pycache__/models.cpython-313.pyc
+	modified:   app.py
+	modified:   models.py
+	modified:   routes/__pycache__/learning.cpython-313.pyc
+	modified:   routes/internships.py
+	modified:   routes/learning.py
+	modified:   routes/shop.py
+	modified:   static/css/index.css
+	modified:   templates/_base.html
+	modified:   templates/auth_login.html
+	modified:   templates/auth_register.html
+	modified:   templates/cart.html
+	modified:   templates/checkout.html
+	modified:   templates/hub.html
+	modified:   templates/index.html
+	modified:   templates/learning_ug.html
+	modified:   templates/order_success.html
+	modified:   templates/product_detail.html
+	modified:   templates/shop.html
+	modified:   templates/subjects.html
+	modified:   templates/topic.html
+	modified:   templates/topics.html
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env
+	__pycache__/utils.cpython-313.pyc
+	__pycache__/wsgi.cpython-313.pyc
+	app.db
+	content/
+	diff.txt
+	diff_utf8.txt
+	git_diff.txt
+	routes/__pycache__/admin.cpython-313.pyc
+	routes/__pycache__/auth.cpython-313.pyc
+	routes/__pycache__/internships.cpython-313.pyc
+	routes/__pycache__/shop.cpython-313.pyc
+	server_log.txt
+	static/hero-devices.png
+	status.txt
+	templates/auth_forgot.html
+	templates/auth_reset.html
+	templates/btech_list.html
+	templates/coming_soon.html
+	templates/learn_language.html
+	templates/learn_topic.html
+	utils.py
+

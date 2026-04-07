@@ -1,0 +1,899 @@
+{% extends "_base.html" %}
+{% block title %}{{ topic.title }} — Learn {{ language }} | VFXKart{% endblock %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  /* ===== PAGE OVERRIDE ===== */
+  body { background: #0f1117 !important; font-family: 'Inter', sans-serif !important; }
+
+  /* ===== LAYOUT ===== */
+  .lt-wrap {
+    display: flex;
+    margin: -120px -3% 0;
+    padding-top: 80px;
+    min-height: 100vh;
+    width: 106%;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .lt-side {
+    width: 260px;
+    min-width: 260px;
+    background: #13151c;
+    border-right: 1px solid #1e2130;
+    padding: 20px 0;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 80px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2d3e transparent;
+  }
+
+  .lt-side::-webkit-scrollbar { width: 3px; }
+  .lt-side::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 3px; }
+
+  .lt-side-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 20px 16px;
+    border-bottom: 1px solid #1e2130;
+    margin-bottom: 16px;
+  }
+
+  .lt-side-back a {
+    text-decoration: none;
+    color: #6b7394;
+    font-size: 0.82rem;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+
+  .lt-side-back a:hover { color: #c5cbe3; }
+
+  .lt-ch {
+    padding: 14px 20px 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #4a5072;
+  }
+
+  .lt-link {
+    display: block;
+    padding: 8px 20px 8px 24px;
+    text-decoration: none;
+    color: #8891b0;
+    font-size: 0.84rem;
+    font-weight: 500;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    line-height: 1.5;
+  }
+
+  .lt-link:hover {
+    color: #c5cbe3;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .lt-link.active {
+    color: #fff;
+    font-weight: 700;
+    border-left-color: #6366f1;
+    background: rgba(99,102,241,0.06);
+  }
+
+  /* ===== MAIN ===== */
+  .lt-main {
+    flex: 1;
+    padding: 36px 52px 80px;
+    max-width: 860px;
+    min-width: 0;
+  }
+
+  .lt-breadcrumb {
+    font-size: 0.78rem;
+    color: #4a5072;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .lt-breadcrumb a {
+    color: #6366f1;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .lt-breadcrumb a:hover { text-decoration: underline; }
+
+  .lt-main h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #e8ecf4;
+    margin: 0 0 32px;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  /* ===== MISSION CARD ===== */
+  .mc {
+    margin-bottom: 32px;
+    border-radius: 12px;
+    border: 1px solid #1e2130;
+    background: #161822;
+    overflow: hidden;
+  }
+
+  .mc-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    background: #1a1d2e;
+    border-bottom: 1px solid #1e2130;
+    flex-wrap: wrap;
+  }
+
+  .mc-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: #22253a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .mc-info { flex: 1; min-width: 200px; }
+
+  .mc-company {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #e8ecf4;
+  }
+
+  .mc-role {
+    font-size: 0.72rem;
+    color: #6b7394;
+    margin-top: 2px;
+  }
+
+  .mc-badge {
+    background: #22253a;
+    border: 1px solid #2e3250;
+    color: #a5b4fc;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .mc-body { padding: 20px 24px; }
+
+  .mc-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mc-label.situation { color: #818cf8; }
+  .mc-label.task { color: #f59e0b; }
+
+  .mc-text {
+    color: #a0a8c4;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin: 0 0 18px;
+  }
+
+  .mc-task-text {
+    color: #c5cbe3;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    font-weight: 500;
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    background: rgba(245,158,11,0.06);
+    border-radius: 8px;
+    border-left: 3px solid #f59e0b;
+  }
+
+  .mc-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .mc-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 6px 0;
+  }
+
+  .mc-step-n {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: #22253a;
+    color: #818cf8;
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .mc-step-t {
+    color: #8891b0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .mc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-top: 1px solid #1e2130;
+    background: #13151c;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .mc-skills {
+    font-size: 0.75rem;
+    color: #4a5072;
+    font-weight: 500;
+  }
+
+  .mc-solve-btn {
+    padding: 7px 16px;
+    border-radius: 7px;
+    border: 1px solid #2e3250;
+    background: #1e2130;
+    color: #a5b4fc;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .mc-solve-btn:hover {
+    background: #6366f1;
+    color: #fff;
+    border-color: #6366f1;
+  }
+
+  .mc-solution {
+    padding: 0 24px 20px;
+  }
+
+  .mc-takeaway {
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.12);
+    border-radius: 8px;
+    color: #6ee7b7;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .mc-takeaway strong { color: #34d399; }
+
+  /* ===== CONTENT SECTIONS ===== */
+  .sec {
+    margin-bottom: 28px;
+    padding: 22px 24px;
+    background: #161822;
+    border: 1px solid #1e2130;
+    border-radius: 12px;
+  }
+
+  .sec-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 14px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #1a1d2e;
+  }
+
+  .sec-label.l-analogy { color: #a78bfa; }
+  .sec-label.l-broken { color: #fb7185; }
+  .sec-label.l-explain { color: #38bdf8; }
+  .sec-label.l-product { color: #34d399; }
+  .sec-label.l-trap { color: #fbbf24; }
+  .sec-label.l-viva { color: #f472b6; }
+  .sec-label.l-build { color: #fb923c; }
+  .sec-label.l-code { color: #6366f1; }
+
+  .sec p, .sec li {
+    color: #a0a8c4;
+    line-height: 1.75;
+    font-size: 0.92rem;
+  }
+
+  .sec h3 {
+    color: #c5cbe3;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 18px 0 8px;
+  }
+
+  .sec ul { padding-left: 18px; }
+  .sec strong { color: #c5cbe3; }
+  .sec code {
+    background: #1e2130;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #a5b4fc;
+  }
+
+  /* ===== CODE BLOCKS ===== */
+  .cb {
+    position: relative;
+    margin: 14px 0;
+  }
+
+  .cb pre {
+    background: #0d0f16;
+    border: 1px solid #1e2130;
+    border-radius: 10px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    line-height: 1.7;
+    color: #c5cbe3;
+    margin: 0;
+  }
+
+  .cb-label {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #3f4468;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #161822;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .ob {
+    background: #0d0f16;
+    border: 1px solid rgba(52,211,153,0.15);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: #6ee7b7;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+
+  .ob-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #2a7c5f;
+    margin-bottom: 4px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ===== TABLE ===== */
+  .ct {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.88rem;
+  }
+
+  .ct th {
+    background: #1a1d2e;
+    color: #a5b4fc;
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 14px;
+    border: 1px solid #1e2130;
+    font-size: 0.82rem;
+  }
+
+  .ct td {
+    padding: 9px 14px;
+    border: 1px solid #1e2130;
+    color: #8891b0;
+  }
+
+  .ct tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+
+  .syntax-block {
+    background: #0d0f16;
+    border: 1px dashed #2e3250;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    color: #7dd3fc;
+    line-height: 1.65;
+  }
+
+  /* ===== BUTTONS ===== */
+  .rv-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 7px;
+    border: 1px solid #2e3250;
+    background: #1e2130;
+    color: #8891b0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    margin-top: 10px;
+  }
+
+  .rv-btn:hover {
+    background: #22253a;
+    border-color: #6366f1;
+    color: #c5cbe3;
+  }
+
+  .hidden-content { display: none; margin-top: 14px; animation: fadeIn 0.25s ease; }
+  .hidden-content.show { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== VIVA ===== */
+  .viva-q {
+    background: #1a1d2e;
+    border: 1px solid #2e3250;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #c5cbe3;
+    font-weight: 600;
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+  }
+
+  .viva-a {
+    background: #0d0f16;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #a0a8c4;
+    line-height: 1.7;
+    font-size: 0.88rem;
+  }
+
+  /* ===== PLAYGROUND ===== */
+  .pg-wrap {
+    margin: 14px 0;
+    border: 1px solid #1e2130;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0d0f16;
+  }
+
+  .pg-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #161822;
+    border-bottom: 1px solid #1e2130;
+  }
+
+  .pg-head span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #4a5072;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .run-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    border: none;
+    background: #6366f1;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .run-btn:hover { background: #4f46e5; }
+  .run-btn:disabled { opacity: 0.4; cursor: wait; }
+
+  .pg-editor {
+    width: 100%;
+    min-height: 160px;
+    background: transparent;
+    color: #c5cbe3;
+    border: none;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.84rem;
+    line-height: 1.65;
+    resize: vertical;
+    outline: none;
+  }
+
+  .pg-output {
+    border-top: 1px solid #1e2130;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: #6ee7b7;
+    min-height: 36px;
+    white-space: pre-wrap;
+    background: rgba(0,0,0,0.2);
+  }
+
+  .pg-output.error { color: #fb7185; }
+
+  /* ===== NAVIGATION ===== */
+  .tn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 28px;
+    margin-top: 36px;
+    border-top: 1px solid #1e2130;
+    gap: 14px;
+  }
+
+  .tn a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .tn-prev {
+    background: #161822;
+    border: 1px solid #1e2130;
+    color: #8891b0;
+  }
+
+  .tn-prev:hover { border-color: #6366f1; color: #c5cbe3; }
+
+  .tn-next {
+    background: #6366f1;
+    color: #fff;
+    border: none;
+  }
+
+  .tn-next:hover { background: #4f46e5; transform: translateY(-1px); }
+
+  .tn-disabled { opacity: 0.3; pointer-events: none; }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 900px) {
+    .lt-wrap { flex-direction: column; margin: -120px 0 0; width: 100%; padding-top: 80px; }
+    .lt-side { width: 100%; min-width: 100%; height: auto; position: relative; top: 0; max-height: 260px; border-right: none; border-bottom: 1px solid #1e2130; }
+    .lt-main { padding: 24px 16px 40px; }
+    .tn { flex-direction: column; }
+    .tn a { width: 100%; justify-content: center; }
+  }
+
+  /* Override base template table styling */
+  .content-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.88rem; }
+  .content-table th { background: #1a1d2e; color: #a5b4fc; font-weight: 700; text-align: left; padding: 10px 14px; border: 1px solid #1e2130; }
+  .content-table td { padding: 9px 14px; border: 1px solid #1e2130; color: #8891b0; }
+</style>
+
+<div class="lt-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="lt-side">
+    <div class="lt-side-back">
+      <a href="{{ url_for('learning.python_landing') }}">← Back to {{ language }} Home</a>
+    </div>
+
+    {% for chapter in chapters %}
+      {% if chapter.id in topics_by_chapter %}
+        <div class="lt-ch">{{ chapter.title }}</div>
+        {% for t in topics_by_chapter[chapter.id] %}
+          <a href="{{ url_for('learning.python_topic', topic_id=t.id) }}"
+             class="lt-link {% if t.id == topic_id %}active{% endif %}">
+            {{ t.title }}
+          </a>
+        {% endfor %}
+      {% endif %}
+    {% endfor %}
+  </aside>
+
+  <!-- MAIN -->
+  <div class="lt-main">
+
+    <div class="lt-breadcrumb">
+      <a href="{{ url_for('learning.python_landing') }}">{{ language }}</a> → {{ topic.title }}
+    </div>
+
+    <h1>{{ topic.title }}</h1>
+
+    <!-- ═══ MISSION CARD ═══ -->
+    {% if topic.mission %}
+    <div class="mc">
+      <div class="mc-top">
+        <div class="mc-icon">{{ topic.mission.company_icon }}</div>
+        <div class="mc-info">
+          <div class="mc-company">{{ topic.mission.company }} — Real-World Mission</div>
+          <div class="mc-role">You just got hired. Here's your first task.</div>
+        </div>
+        <div class="mc-badge">{{ topic.mission.level }}</div>
+      </div>
+
+      <div class="mc-body">
+        <div class="mc-label situation">Situation</div>
+        <p class="mc-text">{{ topic.mission.scenario }}</p>
+
+        <div class="mc-label task">Your Task</div>
+        <div class="mc-task-text">{{ topic.mission.task }}</div>
+
+        <div class="mc-steps">
+          {% for step in topic.mission.steps %}
+          <div class="mc-step">
+            <div class="mc-step-n">{{ loop.index }}</div>
+            <div class="mc-step-t">{{ step }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="mc-footer">
+        <div class="mc-skills">Skills: {{ topic.mission.skills }}</div>
+        <button class="mc-solve-btn" onclick="toggleReveal('mission-solution')">Show Solution</button>
+      </div>
+
+      <div id="mission-solution" class="hidden-content mc-solution">
+        <div class="cb">
+          <span class="cb-label">Solution</span>
+          <pre>{{ topic.mission.solution }}</pre>
+        </div>
+        {% if topic.mission.solution_output %}
+        <div class="ob-label">▶ Output</div>
+        <div class="ob">{{ topic.mission.solution_output }}</div>
+        {% endif %}
+        <div class="mc-takeaway">
+          <strong>Takeaway:</strong> {{ topic.mission.takeaway }}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ANALOGY -->
+    <div class="sec">
+      <div class="sec-label l-analogy">🧠 Analogy</div>
+      <p>{{ topic.analogy | safe }}</p>
+    </div>
+
+    <!-- BROKEN CODE -->
+    <div class="sec">
+      <div class="sec-label l-broken">💀 Find The Bug</div>
+      <p>Look at this broken code. <strong>Can you spot what's wrong?</strong></p>
+
+      <div class="cb">
+        <span class="cb-label">Buggy</span>
+        <pre>{{ topic.broken_code }}</pre>
+      </div>
+
+      <button class="rv-btn" onclick="toggleReveal('hint-block')">💡 Hint</button>
+      <button class="rv-btn" onclick="toggleReveal('fix-block')" style="margin-left:6px;">✅ Fix</button>
+
+      <div id="hint-block" class="hidden-content">
+        <p style="color: #fbbf24; font-weight: 600;">💡 {{ topic.broken_hint }}</p>
+      </div>
+
+      <div id="fix-block" class="hidden-content">
+        <div class="cb">
+          <span class="cb-label">Fixed</span>
+          <pre>{{ topic.broken_fix }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONCEPT -->
+    <div class="sec">
+      <div class="sec-label l-explain">📖 The Concept</div>
+      {{ topic.explanation | safe }}
+
+      <div class="cb">
+        <span class="cb-label">Example</span>
+        <pre>{{ topic.code }}</pre>
+      </div>
+
+      {% if topic.output %}
+      <div class="ob-label">▶ Output</div>
+      <div class="ob">{{ topic.output }}</div>
+      {% endif %}
+    </div>
+
+    <!-- TRY IT -->
+    <div class="sec">
+      <div class="sec-label l-code">💻 Try It Yourself</div>
+      <p>Edit the code and click <strong>Run</strong>.</p>
+
+      <div class="pg-wrap">
+        <div class="pg-head">
+          <span>Python Editor</span>
+          <button class="run-btn" id="runBtn" onclick="runPython()">▶ Run</button>
+        </div>
+        <textarea class="pg-editor" id="codeEditor" spellcheck="false">{{ topic.code }}</textarea>
+        <div id="codeOutput" class="pg-output">Click "Run" to see output...</div>
+      </div>
+    </div>
+
+    <!-- REAL PRODUCT -->
+    <div class="sec">
+      <div class="sec-label l-product">🏗️ Where It's Used</div>
+      <p>{{ topic.real_product | safe }}</p>
+    </div>
+
+    <!-- TRAP -->
+    <div class="sec">
+      <div class="sec-label l-trap">⚠️ Common Trap</div>
+      <p>{{ topic.trap | safe }}</p>
+    </div>
+
+    <!-- VIVA -->
+    <div class="sec">
+      <div class="sec-label l-viva">🎤 Viva Ready</div>
+      <div class="viva-q"><strong>Q:</strong> {{ topic.viva_q }}</div>
+
+      <button class="rv-btn" onclick="toggleReveal('viva-answer')">Show Answer</button>
+
+      <div id="viva-answer" class="hidden-content">
+        <div class="viva-a">{{ topic.viva_a | safe }}</div>
+      </div>
+    </div>
+
+    <!-- MINI BUILD -->
+    <div class="sec">
+      <div class="sec-label l-build">🔨 Build: {{ topic.mini_build }}</div>
+      <p>{{ topic.mini_build_desc | default('Try building this yourself!') }}</p>
+
+      <button class="rv-btn" onclick="toggleReveal('build-solution')">Show Solution</button>
+
+      <div id="build-solution" class="hidden-content">
+        <div class="cb">
+          <span class="cb-label">Solution</span>
+          <pre>{{ topic.mini_build_code }}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="tn">
+      {% if prev_topic %}
+        <a href="{{ url_for('learning.python_topic', topic_id=prev_topic.id) }}" class="tn-prev">← {{ prev_topic.title }}</a>
+      {% else %}
+        <a href="#" class="tn-prev tn-disabled">← Previous</a>
+      {% endif %}
+
+      {% if next_topic %}
+        <a href="{{ url_for('learning.python_topic', topic_id=next_topic.id) }}" class="tn-next">{{ next_topic.title }} →</a>
+      {% else %}
+        <a href="#" class="tn-next tn-disabled">Next →</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+function toggleReveal(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('show');
+}
+
+let pyodideReady = false;
+let pyodideInstance = null;
+
+async function loadPyodideEngine() {
+  if (pyodideReady) return;
+  try {
+    pyodideInstance = await loadPyodide();
+    pyodideReady = true;
+  } catch (e) {
+    console.error("Pyodide failed:", e);
+  }
+}
+
+async function runPython() {
+  const btn = document.getElementById('runBtn');
+  const output = document.getElementById('codeOutput');
+  const code = document.getElementById('codeEditor').value;
+
+  btn.disabled = true;
+  btn.textContent = '⏳ Loading...';
+  output.className = 'pg-output';
+  output.textContent = 'Running...';
+
+  if (!pyodideReady) {
+    output.textContent = 'Loading Python engine (first time only)...';
+    await loadPyodideEngine();
+    if (!pyodideReady) {
+      output.textContent = '❌ Could not load Python engine.';
+      output.className = 'pg-output error';
+      btn.disabled = false;
+      btn.textContent = '▶ Run';
+      return;
+    }
+  }
+
+  try {
+    pyodideInstance.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+`);
+    pyodideInstance.runPython(code);
+    const stdout = pyodideInstance.runPython('sys.stdout.getvalue()');
+    const stderr = pyodideInstance.runPython('sys.stderr.getvalue()');
+
+    if (stderr) {
+      output.textContent = stderr;
+      output.className = 'pg-output error';
+    } else {
+      output.textContent = stdout || '(No output)';
+    }
+  } catch (e) {
+    output.textContent = '❌ ' + e.message;
+    output.className = 'pg-output error';
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Run';
+}
+
+(function() {
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
+  script.onload = function() { setTimeout(loadPyodideEngine, 2000); };
+  document.head.appendChild(script);
+})();
+</script>
+
+{% endblock %}

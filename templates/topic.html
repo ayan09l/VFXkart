@@ -1,0 +1,9 @@
+{% extends "_base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div style="padding: 40px; max-width: 900px; margin: auto;">
+  {{ content | safe }}
+  <a href="{{ url_for('learning.subject', course_id=course_id, subject_name=subject_name) }}">← Back to Topics</a>
+</div>
+{% endblock %}

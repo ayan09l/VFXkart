@@ -1,0 +1,192 @@
+{% extends "_base.html" %}
+{% block title %}Application Received — VFXKart{% endblock %}
+{% block content %}
+
+<style>
+  .success-page {
+    padding: 60px 0 100px;
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── Celebration animation ── */
+  .success-icon-wrap {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(79,70,229,0.05));
+    border: 2px solid rgba(79,70,229,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.8rem;
+    animation: successPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    box-shadow: 0 0 40px rgba(79,70,229,0.15);
+  }
+
+  @keyframes successPop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .success-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 10px;
+    letter-spacing: -1px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .success-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 1.1rem;
+    margin: 0 0 40px;
+    line-height: 1.7;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+
+  .success-sub strong {
+    color: #4F46E5;
+    font-weight: 700;
+  }
+
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Info Card ── */
+  .info-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 24px;
+    padding: 32px;
+    text-align: left;
+    margin-bottom: 40px;
+    animation: fadeUp 0.5s 0.4s ease both;
+  }
+
+  .info-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .info-item:last-child { margin-bottom: 0; }
+  .info-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(79,70,229,0.1);
+    color: #4F46E5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+  .info-content h4 {
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #fff;
+  }
+  .info-content p {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.4;
+  }
+
+  /* ── Actions ── */
+  .success-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #4F46E5;
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(79,70,229,0.3);
+    transition: 0.3s;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(79,70,229,0.5);
+    background: #4338CA;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: 0.3s;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.2);
+  }
+
+</style>
+
+<div class="success-page">
+  <div class="success-icon-wrap">🚀</div>
+
+  <h1 class="success-title">Application Received!</h1>
+  <p class="success-sub">
+    We've received your application for the <strong>{{ program.title }}</strong>. Our team is now reviewing your profile.
+  </p>
+
+  <div class="info-card">
+    <div class="info-item">
+      <div class="info-icon"><i class="fas fa-search"></i></div>
+      <div class="info-content">
+        <h4>Step 1: Profile Review</h4>
+        <p>We check your GitHub, portfolio, and experience to see if you're a good fit for this project.</p>
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon"><i class="fas fa-tasks"></i></div>
+      <div class="info-content">
+        <h4>Step 2: Task Assignment</h4>
+        <p>If shortlisted, you'll receive a project task via email. Complete it to prove your skills.</p>
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-icon"><i class="fas fa-award"></i></div>
+      <div class="info-content">
+        <h4>Step 3: Evaluation & Stipend</h4>
+        <p>Submit your task. Upon approval, you earn your stipend, certificate, and internship offer.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-actions">
+    <a href="{{ url_for('internships.programs_landing') }}" class="btn-primary">Browse More Domains</a>
+    <a href="{{ url_for('hub') }}" class="btn-secondary">Return to Hub →</a>
+  </div>
+</div>
+
+{% endblock %}

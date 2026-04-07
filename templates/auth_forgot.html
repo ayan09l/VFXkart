@@ -1,0 +1,102 @@
+{% extends "_base.html" %}
+{% block title %}Forgot Password — VFXKart{% endblock %}
+
+{% block content %}
+<style>
+  .forgot-wrap {
+    max-width: 440px;
+    margin: 40px auto;
+    padding: 40px 32px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .forgot-wrap h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 8px;
+    text-align: center;
+  }
+
+  .forgot-wrap .subtitle {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .forgot-wrap label {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .forgot-wrap input[type="email"] {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+  }
+
+  .forgot-wrap input[type="email"]:focus {
+    border-color: rgba(232, 57, 57, 0.5);
+  }
+
+  .forgot-wrap .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #e83939, #c02626);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(232, 57, 57, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .forgot-wrap .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(232, 57, 57, 0.55);
+  }
+
+  .forgot-wrap .back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .forgot-wrap .back-link:hover {
+    color: #fff;
+  }
+</style>
+
+<div class="forgot-wrap">
+  <h1>Reset Password</h1>
+  <p class="subtitle">Enter your email to receive a reset link</p>
+  <form method="POST">
+    <label for="email">Email Address</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+    <button type="submit" class="btn-submit">Send Reset Link</button>
+  </form>
+  <a href="{{ url_for('auth_login') }}" class="back-link">← Back to Login</a>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Edit product — VFXKart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo">VK</div>
+        <div>
+          <div style="font-size:14px;font-weight:700">VFXKart</div>
+          <div style="font-size:12px;color:var(--muted)">Edit product</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a href="{{ url_for('seller_dashboard') }}">← Dashboard</a>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card" style="max-width:900px;margin:0 auto">
+      <h2 style="margin:0 0 8px">Edit: {{ product.title }}</h2>
+      <form method="post" enctype="multipart/form-data" style="display:grid;gap:12px">
+        <input name="title" value="{{ product.title }}" placeholder="Title" required>
+        <input name="price" value="{{ product.price }}" placeholder="Price">
+        <textarea name="description" placeholder="Description">{{ product.description }}</textarea>
+
+        <div>
+          <label for="images" style="display:block;margin-bottom:6px;color:var(--muted)">Upload additional images (multiple allowed)</label>
+          <input type="file" name="images" id="images" accept=".png,.jpg,.jpeg,.webp" multiple>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" type="submit">Save changes</button>
+          <a class="btn ghost" href="{{ url_for('seller_dashboard') }}">Back</a>
+        </div>
+      </form>
+
+      <hr style="margin:16px 0;border:none;height:1px;background:rgba(255,255,255,0.02)">
+
+      <h3>Images</h3>
+      {% if images %}
+        <div style="display:flex;flex-wrap:wrap;gap:12px">
+          {% for im in images %}
+            <div style="width:180px">
+              {% if im.thumb %}
+                <img src="{{ url_for('uploaded_file', filename=im.thumb) }}" style="width:100%;height:110px;object-fit:cover;border-radius:8px">
+              {% else %}
+                <div style="height:110px;border-radius:8px;background:rgba(255,255,255,0.02);display:grid;place-items:center;color:var(--muted)">No image</div>
+              {% endif %}
+              <div style="display:flex;gap:8px;margin-top:6px">
+                <form method="post" action="{{ url_for('product_image_delete', product_id=product.id, image_id=im.id) }}" onsubmit="return confirm('Delete this image?');">
+                  <button class="btn ghost" type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="note">No images uploaded yet.</p>
+      {% endif %}
+    </div>
+
+    <div class="footer">© 2025 VFXKart</div>
+  </div>
+</body>
+</html>

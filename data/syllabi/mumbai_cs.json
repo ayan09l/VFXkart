@@ -1,0 +1,18 @@
+{
+  "university": "Mumbai University",
+  "branch": "Computer Science/IT",
+  "subjects": {
+    "Data Structures & Analysis": {
+      "textbooks": ["Data Structures using C by Ellis Horowitz", "Classic Data Structures by Samanta"],
+      "important_topics": ["Sparse Matrix Representation", "Huffman Coding", "B-Trees / B+ Trees", "Graph Traversals (BFS/DFS)"],
+      "viva_expert_tips": ["Mumbai University examiners often ask about 'Dangling Pointers' or 'Memory Leaks' in C.", "Focus on explaining the 'Time-Space Tradeoff' clearly."],
+      "common_10_mark_questions": ["Explain Huffman Coding with a numerical example.", "Discuss B-Tree insertion and deletion with an example."]
+    },
+    "Database Management Systems": {
+      "textbooks": ["Database System Concepts by Korth, Silberschatz", "Fundamentals of Database Systems by Elmasri"],
+      "important_topics": ["E-R Diagram Designing", "Normalization (1NF, 2NF, 3NF, BCNF)", "ACID Properties", "Relational Algebra"],
+      "viva_expert_tips": ["Be ready to explain 'Why BCNF is stronger than 3NF' with a table example.", "Know the difference between 'Physical' and 'Logical' data independence."],
+      "common_10_mark_questions": ["Define Normalization and discuss 1NF, 2NF and 3NF with examples.", "Explain Transaction ACID properties and Serializability."]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+{% block title %}{{ subject_name.title() }} - Topics{% endblock %}
+
+{% block content %}
+<div style="padding: 40px; max-width: 800px; margin: auto;">
+  <h1>{{ subject_name.replace('_', ' ').title() }}</h1>
+  <ul>
+    {% for topic in topics %}
+    <li><a href="{{ url_for('learning.topic', course_id=course_id, subject_name=subject_name, topic_name=topic|lower|replace(' ', '_')) }}">{{ topic }}</a></li>
+    {% endfor %}
+  </ul>
+  <a href="{{ url_for('learning.course', course_id=course_id) }}">← Back to Subjects</a>
+</div>
+{% endblock %}

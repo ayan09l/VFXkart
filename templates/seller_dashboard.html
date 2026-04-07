@@ -1,0 +1,106 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Seller Dashboard — VFXKart</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/site.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="logo">VK</div>
+        <div>
+          <div style="font-size:14px;font-weight:700">VFXKart</div>
+          <div style="font-size:12px;color:var(--muted)">Seller dashboard</div>
+        </div>
+      </div>
+      <div class="actions">
+        <a href="/">← Site</a>
+        <a href="{{ url_for('seller_logout') }}" class="btn ghost" style="margin-left:8px">Logout</a>
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+      <div class="page-title">Welcome {{ user.username }}</div>
+      <div class="sub">Manage your products and images.</div>
+
+      <div class="grid">
+        <div>
+          <form method="post" class="card" style="padding:16px" enctype="multipart/form-data">
+            <h4 style="margin:0 0 8px">Add a product</h4>
+            <div class="form-row">
+              <input name="title" type="text" placeholder="Title" required>
+              <input name="price" type="text" placeholder="Price (e.g. ₹1999)">
+            </div>
+            <div class="form-row">
+              <textarea name="description" placeholder="Short description (optional)"></textarea>
+            </div>
+
+            <div style="margin-bottom:10px">
+              <label for="images" style="display:block;margin-bottom:6px;color:var(--muted)">Product images (optional, max 3MB each)</label>
+              <input type="file" name="images" id="images" accept=".png,.jpg,.jpeg,.webp" multiple>
+            </div>
+
+            <div class="form-row">
+              <button class="btn" type="submit">Add product</button>
+            </div>
+            <div class="note">Tip: upload a few images — we will show them as a gallery on the product page.</div>
+          </form>
+        </div>
+
+        <div>
+          <div class="card">
+            <h4 style="margin:0 0 8px">Your profile</h4>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div><strong>Username:</strong> {{ user.username }}</div>
+              <div><strong>Email:</strong> {{ user.email }}</div>
+              <div><strong>Joined:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</div>
+              <div class="note">Admin must approve seller profiles to appear publicly.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.02);margin:18px 0">
+
+      <h3 style="margin:0 0 10px">Your products</h3>
+      {% if products %}
+        <div class="products">
+          {% for p, img_url in products %}
+            <div class="product card">
+              {% if img_url %}
+                <img src="{{ img_url }}" alt="product img" style="width:100%;height:160px;object-fit:cover;border-radius:10px">
+              {% else %}
+                <div class="product-image">{{ p.title[:12] }}{% if p.title|length > 12 %}…{% endif %}</div>
+              {% endif %}
+              <div class="title">{{ p.title }}</div>
+              <div class="meta">{{ p.price or "" }}</div>
+              <div style="font-size:13px;color:var(--muted)">{{ p.description or "" }}</div>
+              <div class="actions">
+                <a class="btn ghost" href="{{ url_for('product_edit', product_id=p.id) }}">Edit</a>
+                <form method="post" action="{{ url_for('seller_product_delete', product_id=p.id) }}" onsubmit="return confirm('Delete this product?');" style="display:inline">
+                  <button type="submit" class="btn ghost">Delete</button>
+                </form>
+                <div style="margin-left:auto;color:var(--muted);font-size:13px">{{ p.created_at.strftime('%Y-%m-%d') }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="note">No products yet. Add your first product using the form above.</p>
+      {% endif %}
+    </div>
+
+    <div class="footer">© 2025 VFXKart</div>
+  </div>
+</body>
+</html>

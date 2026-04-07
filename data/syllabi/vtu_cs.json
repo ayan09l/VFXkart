@@ -1,0 +1,18 @@
+{
+  "university": "VTU",
+  "branch": "Computer Science",
+  "subjects": {
+    "Data Structures": {
+      "textbooks": ["Data Structures using C by Reema Thareja", "Classic Data Structures by Samanta"],
+      "important_topics": ["Time Complexity", "Stack Operations", "Linked List insertion", "Tree Traversals"],
+      "viva_expert_tips": ["Always mention Time and Space complexity while explaining algorithms.", "Draw pointers clearly while making linked list diagrams."],
+      "common_10_mark_questions": ["Write a C program to implement Stack using Arrays.", "Explain In-order, Pre-order and Post-order tree traversals."]
+    },
+    "Operating Systems": {
+      "textbooks": ["Operating System Concepts by Silberschatz", "OS by William Stallings"],
+      "important_topics": ["CPU Scheduling", "Deadlock Prevention", "Paging", "Page Replacement"],
+      "viva_expert_tips": ["Mention the difference between 'Preemptive' and 'Non-preemptive' scheduling clearly.", "Explain Context Switching with a process control block (PCB) diagram."],
+      "common_10_mark_questions": ["Explain Bankers Algorithm for deadlock avoidance.", "Solve LRU and Optimal page replacement problems."]
+    }
+  }
+}

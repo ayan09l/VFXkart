@@ -1,0 +1,899 @@
+{% extends "_base.html" %}
+{% block title %}VFXKart — Hinglish AI Pro Tutor{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --bg-beige: #F9F8F3;
+    --card-white: #ffffff;
+    --accent-indigo: #4F46E5;
+    --accent-orange: #F97316;
+    --accent-emerald: #059669;
+    --text-main: #1A1A1A;
+    --text-muted: #6B7280;
+    --border-soft: rgba(0, 0, 0, 0.05);
+    --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.04);
+  }
+
+  /* ── OVERRIDE BASE DARK THEME ── */
+  body {
+    background: var(--bg-beige) !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: var(--text-main);
+  }
+  .bg-glow, #thetaWave, footer.site-footer, .studybot-wrap, .announce-bar {
+    display: none !important;
+  }
+  main.container {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-top: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* ── NAV OVERRIDE ── */
+  .nav-island {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+  }
+  .nav-link, .brand, .user-greeting { color: #333 !important; }
+  .brand span { color: var(--accent-orange) !important; }
+
+  /* ── WRAPPER ── */
+  .hinglish-wrapper {
+    padding-top: 130px;
+    width: min(1450px, 98%);
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* ── HEADER ── */
+  .tutor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 35px;
+  }
+  .header-left h1 {
+    font-size: 2.6rem;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    margin-bottom: 6px;
+    color: #111;
+  }
+  .header-left p {
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  .uni-selector-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-white);
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    box-shadow: var(--shadow-soft);
+  }
+  .uni-selector-wrap select {
+    border: none;
+    background: transparent;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--accent-indigo);
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ── MAIN GRID ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ── CHAT ── */
+  .chat-column { display: flex; flex-direction: column; gap: 20px; }
+
+  .chat-bubble-area {
+    background: var(--card-white);
+    border-radius: 28px;
+    height: 520px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+  }
+  .chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .msg-block { display: flex; flex-direction: column; }
+  .msg-block.ai { align-items: flex-start; }
+  .msg-block.user { align-items: flex-end; }
+
+  .bubble {
+    padding: 16px 22px;
+    max-width: 88%;
+    line-height: 1.65;
+    font-size: 0.95rem;
+  }
+  .ai .bubble {
+    background: #f1f5f9;
+    color: #1e293b;
+    border-radius: 4px 22px 22px 22px;
+  }
+  .user .bubble {
+    background: var(--accent-indigo);
+    color: #fff;
+    border-radius: 22px 22px 4px 22px;
+    font-weight: 500;
+  }
+  .voice-btn {
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.2s;
+  }
+  .voice-btn:hover { background: #fff7ed; transform: scale(1.04); }
+
+  /* ── INPUT ── */
+  .input-container {
+    background: var(--card-white);
+    border-radius: 20px;
+    padding: 12px 20px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .input-container textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    resize: none;
+    min-height: 44px;
+    outline: none;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text-main);
+    padding-top: 10px;
+  }
+  .btn-send {
+    background: var(--accent-indigo);
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-send:hover { transform: rotate(-15deg) scale(1.1); box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3); }
+
+  /* ── RIGHT COLUMN ── */
+  .bridge-column {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    position: sticky;
+    top: 110px;
+  }
+
+  /* ── 3D VISUALIZER ── */
+  .visualizer-card {
+    background: #0f172a;
+    border-radius: 24px;
+    height: 300px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+  }
+  .visualizer-overlay {
+    position: absolute;
+    top: 12px; left: 12px;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: rgba(255,255,255,0.5);
+    z-index: 10;
+    pointer-events: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .visualizer-hint {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.3);
+    z-index: 10;
+    pointer-events: none;
+  }
+  .visualizer-canvas-wrap { width: 100%; height: 100%; }
+
+  /* ── ACADEMIC BRIDGE CARD ── */
+  .bridge-card {
+    background: var(--card-white);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--border-soft);
+  }
+  .bridge-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .badge-tech {
+    background: #eff6ff;
+    color: #3b82f6;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .bridge-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #111;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--accent-orange);
+    padding-left: 10px;
+    font-weight: 700;
+  }
+
+  .def-box {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    padding: 16px;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #334155;
+    margin-bottom: 22px;
+  }
+
+  .term-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .term-item {
+    background: var(--bg-beige);
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+  }
+  .term-name { font-weight: 700; color: var(--accent-indigo); font-size: 0.85rem; }
+  .term-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+  /* ── TEXTBOOK REFERENCES ── */
+  .textbook-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+  .textbook-chip {
+    background: #ecfdf5;
+    color: var(--accent-emerald);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid rgba(5, 150, 105, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  /* ── 10-MARK QUESTIONS ── */
+  .questions-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px; }
+  .question-item {
+    background: #fefce8;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    color: #854d0e;
+    border: 1px solid rgba(202, 138, 4, 0.12);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+  .question-item .q-badge {
+    background: #fbbf24;
+    color: #78350f;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── VIVA TIP ── */
+  .viva-tip {
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    display: flex;
+    gap: 8px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* ── SHIMMER ── */
+  .shimmer {
+    height: 14px;
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    animation: shimmerSlide 1.5s infinite;
+  }
+  @keyframes shimmerSlide {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1000px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .bridge-column { position: static; }
+    .tutor-header { flex-direction: column; align-items: flex-start; gap: 15px; }
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                      HTML LAYOUT                       -->
+<!-- ═══════════════════════════════════════════════════════ -->
+
+<div class="hinglish-wrapper">
+
+  <div class="tutor-header">
+    <div class="header-left">
+      <h1>Hinglish <span style="color: var(--accent-orange);">AI Pro</span></h1>
+      <p>Your personal engineering mentor — exam-grounded, university-synced.</p>
+    </div>
+    <div class="uni-selector-wrap">
+      <i class="fas fa-university" style="color: var(--text-muted);"></i>
+      <select id="uniSelect">
+        <option value="General">General B.Tech</option>
+        <option value="VTU">VTU (Karnataka)</option>
+        <option value="Anna">Anna University (TN)</option>
+        <option value="AKU">AKU (Bihar)</option>
+        <option value="JNTU">JNTU (Telangana)</option>
+        <option value="Mumbai">Mumbai University</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="main-grid">
+
+    <!-- ═══ LEFT: CHAT ═══ -->
+    <div class="chat-column">
+      <div class="chat-bubble-area">
+        <div class="chat-history" id="chatHistory">
+          <div class="msg-block ai">
+            <div class="bubble">
+              <b>Namaste!</b> Kya topic samjhna hai aaj?<br>
+              <span style="font-size:0.82rem; opacity:0.6;">(Ask anything in Hindi/English mix — I'll explain + give exam-ready definitions)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-container">
+        <textarea id="userInput" placeholder="Stack kya hota hai? Explain with example..."></textarea>
+        <button class="btn-send" id="sendBtn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ RIGHT: BRIDGE + VISUALS ═══ -->
+    <div class="bridge-column" id="bridgeSide">
+
+      <!-- 3D VISUALIZER -->
+      <div class="visualizer-card" id="visualCard">
+        <div class="visualizer-overlay"><i class="fas fa-cube"></i> 3D VISUALIZER</div>
+        <div class="visualizer-hint">drag to rotate</div>
+        <div id="threeCanvasWrap" class="visualizer-canvas-wrap"></div>
+      </div>
+
+      <!-- ACADEMIC BRIDGE CARD -->
+      <div class="bridge-card">
+        <div class="bridge-header">
+          <div class="badge-tech">EXAM SYNC</div>
+          <div class="bridge-title">Academic Bridge</div>
+        </div>
+
+        <div class="section-label">Formal Definition</div>
+        <div class="def-box" id="formalDef">
+          Ask a question to see the exam-ready academic definition here.
+        </div>
+
+        <div class="section-label">Key Terms</div>
+        <div class="term-list" id="termList">
+          <div class="term-item">
+            <div class="term-name">Ready</div>
+            <div class="term-desc">Ask your first question to populate key terms.</div>
+          </div>
+        </div>
+
+        <div class="section-label"><i class="fas fa-book" style="margin-right:4px;"></i> Recommended Textbooks</div>
+        <div class="textbook-list" id="textbookList">
+          <div class="textbook-chip"><i class="fas fa-book-open"></i> Select a university first</div>
+        </div>
+
+        <div class="section-label"><i class="fas fa-star" style="margin-right:4px;"></i> Predicted 10-Mark Questions</div>
+        <div class="questions-list" id="questionsList">
+          <div class="question-item">
+            <span class="q-badge">10M</span>
+            <span>Questions will appear after you ask a topic.</span>
+          </div>
+        </div>
+
+        <div class="viva-tip" id="vivaTip">
+          <i class="fas fa-lightbulb" style="font-size:1.1rem;"></i>
+          <span>Select a University above to see tips from your examiners!</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                 THREE.JS 3D ENGINE                     -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  const container = document.getElementById('threeCanvasWrap');
+  let scene, camera, renderer, controls, currentModel = null;
+
+  function initThree() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0f172a);
+
+    camera = new THREE.PerspectiveCamera(50, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 2, 6);
+
+    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 1.2;
+
+    // Lighting
+    const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+    scene.add(ambient);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 8, 5);
+    scene.add(dirLight);
+    const pointLight = new THREE.PointLight(0x4F46E5, 0.6, 20);
+    pointLight.position.set(-3, 4, 2);
+    scene.add(pointLight);
+
+    // Grid
+    const grid = new THREE.GridHelper(10, 20, 0x1e293b, 0x1e293b);
+    grid.position.y = -1.5;
+    scene.add(grid);
+
+    // Default: idle cubes
+    buildIdleScene();
+    animate();
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  function clearModel() {
+    if (currentModel) { scene.remove(currentModel); currentModel = null; }
+  }
+
+  // ── IDLE SCENE ──
+  function buildIdleScene() {
+    clearModel();
+    const group = new THREE.Group();
+    const geo = new THREE.BoxGeometry(0.6, 0.6, 0.6);
+    for (let i = 0; i < 5; i++) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0.6 + i * 0.05, 0.5, 0.55),
+        roughness: 0.4, metalness: 0.3
+      });
+      const cube = new THREE.Mesh(geo, mat);
+      cube.position.set((i - 2) * 1.2, Math.sin(i) * 0.5, 0);
+      cube.rotation.set(i * 0.3, i * 0.5, 0);
+      group.add(cube);
+    }
+    currentModel = group;
+    scene.add(group);
+  }
+
+  // ── STACK ──
+  function buildStack() {
+    clearModel();
+    const group = new THREE.Group();
+    const labels = ['main()', 'sort()', 'swap()', 'print()'];
+    for (let i = 0; i < labels.length; i++) {
+      const geo = new THREE.BoxGeometry(2, 0.5, 1.2);
+      const hue = 0.55 + i * 0.07;
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(hue, 0.6, 0.5),
+        roughness: 0.3, metalness: 0.2
+      });
+      const block = new THREE.Mesh(geo, mat);
+      block.position.y = i * 0.6 - 0.9;
+      group.add(block);
+
+      // Edge outline
+      const edges = new THREE.EdgesGeometry(geo);
+      const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 }));
+      line.position.copy(block.position);
+      group.add(line);
+    }
+
+    // Arrow pointing up (push direction)
+    const arrowGeo = new THREE.ConeGeometry(0.15, 0.5, 8);
+    const arrowMat = new THREE.MeshStandardMaterial({ color: 0xF97316, emissive: 0xF97316, emissiveIntensity: 0.3 });
+    const arrow = new THREE.Mesh(arrowGeo, arrowMat);
+    arrow.position.set(1.8, 1.2, 0);
+    group.add(arrow);
+
+    currentModel = group;
+    scene.add(group);
+    camera.position.set(0, 2, 5);
+  }
+
+  // ── LINKED LIST ──
+  function buildLinkedList() {
+    clearModel();
+    const group = new THREE.Group();
+    const count = 5;
+    for (let i = 0; i < count; i++) {
+      // Node
+      const geo = new THREE.SphereGeometry(0.35, 24, 24);
+      const mat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0.58 + i * 0.06, 0.65, 0.5),
+        roughness: 0.3, metalness: 0.4
+      });
+      const node = new THREE.Mesh(geo, mat);
+      node.position.x = i * 1.6 - 3.2;
+      group.add(node);
+
+      // Arrow link
+      if (i < count - 1) {
+        const arrowGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.9, 8);
+        const arrowMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8 });
+        const link = new THREE.Mesh(arrowGeo, arrowMat);
+        link.rotation.z = Math.PI / 2;
+        link.position.set(i * 1.6 - 2.4, 0, 0);
+        group.add(link);
+
+        // Arrow tip
+        const tipGeo = new THREE.ConeGeometry(0.1, 0.25, 6);
+        const tip = new THREE.Mesh(tipGeo, arrowMat);
+        tip.rotation.z = -Math.PI / 2;
+        tip.position.set(i * 1.6 - 1.85, 0, 0);
+        group.add(tip);
+      }
+    }
+
+    // NULL terminator
+    const nullGeo = new THREE.RingGeometry(0.15, 0.25, 16);
+    const nullMat = new THREE.MeshBasicMaterial({ color: 0xef4444, side: THREE.DoubleSide });
+    const nullNode = new THREE.Mesh(nullGeo, nullMat);
+    nullNode.position.set(count * 1.6 - 2.8, 0, 0);
+    group.add(nullNode);
+
+    currentModel = group;
+    scene.add(group);
+    camera.position.set(0, 2, 7);
+  }
+
+  // ── BINARY TREE ──
+  function buildBinaryTree() {
+    clearModel();
+    const group = new THREE.Group();
+
+    const positions = [
+      [0, 2, 0],         // root
+      [-1.5, 0.8, 0],    // left
+      [1.5, 0.8, 0],     // right
+      [-2.3, -0.5, 0],   // left-left
+      [-0.7, -0.5, 0],   // left-right
+      [0.7, -0.5, 0],    // right-left
+      [2.3, -0.5, 0],    // right-right
+    ];
+
+    const edges = [[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+
+    // Nodes
+    positions.forEach((pos, i) => {
+      const geo = new THREE.SphereGeometry(0.3, 20, 20);
+      const mat = new THREE.MeshStandardMaterial({
+        color: i === 0 ? 0xF97316 : new THREE.Color().setHSL(0.6, 0.5, 0.5),
+        roughness: 0.3, metalness: 0.3,
+        emissive: i === 0 ? 0xF97316 : 0x000000,
+        emissiveIntensity: i === 0 ? 0.2 : 0
+      });
+      const node = new THREE.Mesh(geo, mat);
+      node.position.set(...pos);
+      group.add(node);
+    });
+
+    // Edges
+    edges.forEach(([a, b]) => {
+      const pa = new THREE.Vector3(...positions[a]);
+      const pb = new THREE.Vector3(...positions[b]);
+      const dir = pb.clone().sub(pa);
+      const len = dir.length();
+      const mid = pa.clone().add(pb).multiplyScalar(0.5);
+
+      const geo = new THREE.CylinderGeometry(0.03, 0.03, len, 6);
+      const mat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+      const edge = new THREE.Mesh(geo, mat);
+      edge.position.copy(mid);
+      edge.lookAt(pb);
+      edge.rotateX(Math.PI / 2);
+      group.add(edge);
+    });
+
+    currentModel = group;
+    scene.add(group);
+    camera.position.set(0, 2, 6);
+  }
+
+  // ── GEAR (mechanical) ──
+  function buildGear() {
+    clearModel();
+    const group = new THREE.Group();
+
+    function makeGear(innerR, outerR, teeth, thickness, color) {
+      const shape = new THREE.Shape();
+      const step = (Math.PI * 2) / teeth;
+      for (let i = 0; i < teeth; i++) {
+        const a1 = i * step;
+        const a2 = a1 + step * 0.3;
+        const a3 = a1 + step * 0.5;
+        const a4 = a1 + step * 0.8;
+        shape.lineTo(Math.cos(a1) * innerR, Math.sin(a1) * innerR);
+        shape.lineTo(Math.cos(a2) * outerR, Math.sin(a2) * outerR);
+        shape.lineTo(Math.cos(a3) * outerR, Math.sin(a3) * outerR);
+        shape.lineTo(Math.cos(a4) * innerR, Math.sin(a4) * innerR);
+      }
+      shape.closePath();
+      const geo = new THREE.ExtrudeGeometry(shape, { depth: thickness, bevelEnabled: false });
+      const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.6 });
+      return new THREE.Mesh(geo, mat);
+    }
+
+    const gear1 = makeGear(0.8, 1.1, 12, 0.3, 0x4F46E5);
+    gear1.position.set(-1.2, 0, 0);
+    group.add(gear1);
+
+    const gear2 = makeGear(0.6, 0.85, 10, 0.3, 0xF97316);
+    gear2.position.set(1.1, 0.9, 0);
+    gear2.rotation.z = Math.PI / 10;
+    group.add(gear2);
+
+    currentModel = group;
+    scene.add(group);
+    camera.position.set(0, 1, 5);
+  }
+
+  // ── PUBLIC API ──
+  window.visualizer = {
+    showStack: buildStack,
+    showLinkedList: buildLinkedList,
+    showBinaryTree: buildBinaryTree,
+    showGear: buildGear,
+    showIdle: buildIdleScene
+  };
+
+  // Init on load
+  if (container) initThree();
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    if (!renderer) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--                  CHAT & BRIDGE LOGIC                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<script>
+  const chatHistory = document.getElementById('chatHistory');
+  const userInput = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const uniSelect = document.getElementById('uniSelect');
+
+  const formalDef = document.getElementById('formalDef');
+  const termList = document.getElementById('termList');
+  const textbookList = document.getElementById('textbookList');
+  const questionsList = document.getElementById('questionsList');
+  const vivaTip = document.getElementById('vivaTip');
+
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'hi-IN';
+      u.rate = 0.88;
+      window.speechSynthesis.speak(u);
+    }
+  }
+
+  // Detect which 3D model to show based on the topic
+  function detectVisual(msg) {
+    const lower = msg.toLowerCase();
+    if (/stack|push|pop|lifo/.test(lower)) return 'stack';
+    if (/linked\s*list|node|pointer|singly|doubly/.test(lower)) return 'linkedlist';
+    if (/tree|binary|bst|traversal|inorder|preorder/.test(lower)) return 'binarytree';
+    if (/gear|mechanical|crankshaft|engine/.test(lower)) return 'gear';
+    return null;
+  }
+
+  function showVisual(type) {
+    if (!window.visualizer) return;
+    switch(type) {
+      case 'stack': window.visualizer.showStack(); break;
+      case 'linkedlist': window.visualizer.showLinkedList(); break;
+      case 'binarytree': window.visualizer.showBinaryTree(); break;
+      case 'gear': window.visualizer.showGear(); break;
+      default: window.visualizer.showIdle();
+    }
+  }
+
+  async function sendMessage() {
+    const message = userInput.value.trim();
+    const university = uniSelect.value;
+    if (!message) return;
+
+    // User bubble
+    const uDiv = document.createElement('div');
+    uDiv.className = 'msg-block user';
+    uDiv.innerHTML = `<div class="bubble">${message}</div>`;
+    chatHistory.appendChild(uDiv);
+    userInput.value = '';
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    // Detect and show 3D visual
+    const visualType = detectVisual(message);
+    if (visualType) showVisual(visualType);
+
+    // AI loading
+    const aiDiv = document.createElement('div');
+    aiDiv.className = 'msg-block ai';
+    aiDiv.innerHTML = `<div class="bubble"><div class="shimmer" style="width:120px"></div><div class="shimmer" style="width:85%"></div><div class="shimmer" style="width:60%"></div></div>`;
+    chatHistory.appendChild(aiDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    try {
+      const resp = await fetch('/api/ai/hinglish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, university })
+      });
+      const data = await resp.json();
+
+      if (data.error) {
+        aiDiv.innerHTML = `<div class="bubble">${data.error}</div>`;
+        return;
+      }
+
+      // Sanitize text for speech
+      const safeText = (data.hinglish_reply || '').replace(/['"\\]/g, ' ');
+
+      // Update AI bubble
+      aiDiv.innerHTML = `
+        <div class="bubble">${data.hinglish_reply}</div>
+        <button class="voice-btn" onclick="speak(\`${safeText}\`)">
+          <i class="fas fa-volume-up"></i> Listen to Bhaiya
+        </button>
+      `;
+
+      // Update Academic Bridge
+      formalDef.innerHTML = data.english_definition || 'No definition available.';
+      
+      // Key terms
+      if (data.key_terms && data.key_terms.length) {
+        termList.innerHTML = data.key_terms.map(t => `
+          <div class="term-item">
+            <div class="term-name">${t.word}</div>
+            <div class="term-desc">${t.definition}</div>
+          </div>
+        `).join('');
+      }
+
+      // Textbooks
+      if (data.textbooks && data.textbooks.length) {
+        textbookList.innerHTML = data.textbooks.map(b => `
+          <div class="textbook-chip"><i class="fas fa-book-open"></i> ${b}</div>
+        `).join('');
+      } else {
+        textbookList.innerHTML = `<div class="textbook-chip"><i class="fas fa-book-open"></i> General references</div>`;
+      }
+
+      // 10-Mark Questions
+      if (data.common_questions && data.common_questions.length) {
+        questionsList.innerHTML = data.common_questions.map(q => `
+          <div class="question-item">
+            <span class="q-badge">10M</span>
+            <span>${q}</span>
+          </div>
+        `).join('');
+      }
+
+      // Exam tip
+      vivaTip.innerHTML = `
+        <i class="fas fa-graduation-cap" style="font-size:1.1rem;"></i>
+        <span><b>${university} Tip:</b> ${data.exam_tip || 'Practice this topic well!'}</span>
+      `;
+
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+
+    } catch (err) {
+      aiDiv.innerHTML = `<div class="bubble">Network issue hai bhai. Please try again.</div>`;
+    }
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+</script>
+{% endblock %}

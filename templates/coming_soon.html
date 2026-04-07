@@ -1,0 +1,78 @@
+{% extends "_base.html" %}
+{% block title %}{{ title }} — Coming Soon | VFXKart{% endblock %}
+
+{% block content %}
+<style>
+  .cs-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .cs-icon {
+    font-size: 4rem;
+    margin-bottom: 24px;
+    animation: csBounce 2s ease-in-out infinite;
+  }
+
+  @keyframes csBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .cs-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 900;
+    color: #fff;
+    margin: 0 0 14px;
+    letter-spacing: -1px;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .cs-title span {
+    background: linear-gradient(135deg, #f47272, #e83939);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cs-sub {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.05rem;
+    max-width: 440px;
+    line-height: 1.7;
+    margin: 0 0 36px;
+  }
+
+  .cs-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #e83939, #c02626);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 6px 24px rgba(232, 57, 57, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .cs-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(232, 57, 57, 0.55);
+  }
+</style>
+
+<div class="cs-wrap">
+  <div class="cs-icon">🚀</div>
+  <h1 class="cs-title">{{ title }} is <span>Coming Soon</span></h1>
+  <p class="cs-sub">We're working hard to bring you something amazing. Stay tuned for updates!</p>
+  <a href="{{ url_for('index') }}" class="cs-back">← Back to Home</a>
+</div>
+{% endblock %}
