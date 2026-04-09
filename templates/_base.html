@@ -319,17 +319,30 @@
     @media (max-width: 850px) {
       .nav-inner {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
+        padding-bottom: 10px;
       }
 
       .nav-island {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
+        padding: 10px 14px;
+      }
+      
+      .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 14px;
+      }
+      
+      .nav-island.nav-auth {
+        flex-wrap: wrap;
+        gap: 10px;
       }
 
       main.container {
-        padding-top: 200px;
+        padding-top: 250px;
       }
     }
 
