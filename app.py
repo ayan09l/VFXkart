@@ -254,6 +254,14 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+@app.route('/robots.txt')
+def robots_txt():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'sitemap.xml')
+
 # ---------- Convenience redirect for /seller ----------
 @app.route("/seller")
 def seller_root():

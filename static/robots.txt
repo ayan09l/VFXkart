@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /seller/
+Disallow: /auth/
+
+Sitemap: https://vfxkart.shop/sitemap.xml
